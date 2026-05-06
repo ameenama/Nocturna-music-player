@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;600;700&family=Tenor+Sans&display=swap" rel="stylesheet">
+</head>
+<body>
+    <video class="bg-video" autoplay muted loop playsinline>
+        <source src="{{ url_for('static', filename='bgvdo.mp4') }}" type="video/mp4">
+    </video>
+
+    <header class="topbar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna">
+        </div>
+    </header>
+
+    <div class="form-container">
+        <h2>NOCTURNA</h2>
+        <div class="card">
+            <p class="card-heading">CREATE YOUR ACCOUNT</p>
+
+            {% if error %}
+                <p style="color: red; text-align: center;">{{ error }}</p>
+            {% endif %}
+
+            <form action="/register" method="POST">
+                <label for="fname">Username:</label><br>
+                <input type="text" id="fname" name="fname" placeholder="Enter your username" required><br>
+
+                <div class="field-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <div class="field-group">
+                    <label for="confirm">Confirm Password</label>
+                    <input type="password" id="confirm" name="confirm" placeholder="Re-enter password" required>
+                </div>
+                <input type="submit" value="CREATE ACCOUNT">
+            </form>
+            <p class="login-link">Already have an account? <a href="/login">Sign in</a></p>
+        </div>
+    </div>
+
+</body>
+</html>

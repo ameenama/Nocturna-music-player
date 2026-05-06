@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Nocturna – Artists</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='artists.css') }}">    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Tenor+Sans&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<video class="bg-video" autoplay muted loop playsinline>
+   <source src="{{ url_for('static', filename='bgvdo.mp4') }}" type="video/mp4">
+</video>
+
+<div class="artists-page">
+
+    <header class="topbar">
+        <div class="logo-text">
+           <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">
+            Nocturna
+        </div>
+        <nav class="nav-links">
+            <a href="/index">Home</a>
+<a href="/discover">Discover</a>
+<a href="/artists">Artists</a>
+<a href="/releases">Releases</a>
+{% if session.get('username') %}
+    <div class="user-profile" onclick="toggleDropdown()">
+        <span class="username-display">{{ session['username'] }}</span>
+        <div class="user-avatar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+            </svg>
+        </div>
+        <div class="user-dropdown" id="userDropdown">
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+{% else %}
+    <a href="/login" class="login-btn">Login</a>
+{% endif %}
+        </nav>
+    </header>
+
+    <div class="page-header">
+        <h1>Artists</h1>
+        <p>Worldwide talent. Every genre. Every era.</p>
+    </div>
+
+    <div class="filter-bar">
+        <div class="search-box">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="lightgray" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="searchInput" placeholder="Search artists…" oninput="filterArtists()">
+        </div>
+        <div class="filter-chips">
+            <button class="chip active" onclick="filterByGenre('All', this)">All</button>
+            <button class="chip" onclick="filterByGenre('Pop', this)">Pop</button>
+            <button class="chip" onclick="filterByGenre('Hip-Hop', this)">Hip-Hop</button>
+            <button class="chip" onclick="filterByGenre('Electronic', this)">Electronic</button>
+            <button class="chip" onclick="filterByGenre('Rock', this)">Rock</button>
+            <button class="chip" onclick="filterByGenre('R&B', this)">R&B</button>
+            <button class="chip" onclick="filterByGenre('Classical', this)">Classical</button>
+            <button class="chip" onclick="filterByGenre('Jazz', this)">Jazz</button>
+            <button class="chip" onclick="filterByGenre('World', this)">World</button>
+        </div>
+    </div>
+
+    <div class="artists-grid" id="artistGrid"></div>
+
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18V5l12-2v13"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <circle cx="18" cy="16" r="3"></circle>
+                    </svg>
+                    Nocturna
+                </div>
+                <p class="footer-tagline">Curated sounds for those who thrive after midnight.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Music</h4>
+                <a href="#">Discover</a>
+                <a href="#">Artists</a>
+                <a href="#">New Releases</a>
+                <a href="#">Charts</a>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <a href="#">About Us</a>
+                <a href="#">Careers</a>
+                <a href="#">Contact</a>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+            <div class="footer-col">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="#" aria-label="Instagram">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle></svg>
+                    </a>
+                    <a href="#" aria-label="Twitter">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                    <a href="#" aria-label="YouTube">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                    </a>
+                    <a href="#" aria-label="Spotify">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 Nocturna. All rights reserved.</p>
+        </div>
+    </footer>
+
+</div>
+
+<script>
+    const artists = [
+        { name: "Taylor Swift", genre: "Pop", img: "/static/taylor.jpeg" },
+        { name: "Ed Sheeran",   genre: "Pop", img: "/static/ed.jpg" },
+        { name: "Dua Lipa",     genre: "Pop", img: "/static/dua.jpg" },
+        { name: "Charlie Puth", genre: "Pop", img: "/static/charlie.jpg" },
+        { name: "Adele",        genre: "Pop", img: "/static/adele.jpg" },
+        { name: "Kendrick Lamar",   genre: "Hip-Hop",    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Kendrick_Lamar_KAABOO_2019_%28cropped%29.jpg/440px-Kendrick_Lamar_KAABOO_2019_%28cropped%29.jpg" },
+        { name: "Drake",            genre: "Hip-Hop",    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Drake_July_2016.jpg/440px-Drake_July_2016.jpg" },
+        { name: "J. Cole",          genre: "Hip-Hop",    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/J._Cole_2018_%28cropped%29.jpg/440px-J._Cole_2018_%28cropped%29.jpg" },
+        { name: "Cardi B",          genre: "Hip-Hop",    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Cardi_B_2019_%28cropped%29.jpg/440px-Cardi_B_2019_%28cropped%29.jpg" },
+        { name: "The Weeknd",       genre: "R&B",        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/The_Weeknd_2015.jpg/440px-The_Weeknd_2015.jpg" },
+        { name: "Beyoncé",          genre: "R&B",        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Beyonce_at_The_2019_ESPYS_%28cropped%29.jpg/440px-Beyonce_at_The_2019_ESPYS_%28cropped%29.jpg" },
+        { name: "Bruno Mars",       genre: "R&B",        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Bruno_Mars_2014_at_the_Grammys.jpg/440px-Bruno_Mars_2014_at_the_Grammys.jpg" },
+        { name: "SZA",              genre: "R&B",        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/SZA_2018_%28cropped%29.jpg/440px-SZA_2018_%28cropped%29.jpg" },
+        { name: "Daft Punk",        genre: "Electronic", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Daft_Punk_-_Alive_2007_Tour.jpg/440px-Daft_Punk_-_Alive_2007_Tour.jpg" },
+        { name: "Calvin Harris",    genre: "Electronic", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Calvin_Harris_2012_Cropped.jpg/440px-Calvin_Harris_2012_Cropped.jpg" },
+        { name: "Skrillex",         genre: "Electronic", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Skrillex_2014_%28cropped%29.jpg/440px-Skrillex_2014_%28cropped%29.jpg" },
+        { name: "Coldplay",         genre: "Rock",       img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/thirty/Coldplay_2017_%28cropped%29.jpg/440px-Coldplay_2017_%28cropped%29.jpg" },
+        { name: "Linkin Park",      genre: "Rock",       img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Linkin_Park_2012.jpg/440px-Linkin_Park_2012.jpg" },
+        { name: "Arctic Monkeys",   genre: "Rock",       img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Alex_Turner_2014_%28cropped%29.jpg/440px-Alex_Turner_2014_%28cropped%29.jpg" },
+        { name: "A.R. Rahman",      genre: "Classical",  img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/A._R._Rahman_at_the_2011_Cannes_Film_Festival.jpg/440px-A._R._Rahman_at_the_2011_Cannes_Film_Festival.jpg" },
+        { name: "Ludovico Einaudi", genre: "Classical",  img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Ludovico_Einaudi_2017_%28cropped%29.jpg/440px-Ludovico_Einaudi_2017_%28cropped%29.jpg" },
+        { name: "Hans Zimmer",      genre: "Classical",  img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Hans_Zimmer_2017_%28cropped%29.jpg/440px-Hans_Zimmer_2017_%28cropped%29.jpg" },
+        { name: "Norah Jones",      genre: "Jazz",       img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Norah_Jones_2012_%28cropped%29.jpg/440px-Norah_Jones_2012_%28cropped%29.jpg" },
+        { name: "Diana Krall",      genre: "Jazz",       img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Diana_Krall_%28cropped%29.jpg/440px-Diana_Krall_%28cropped%29.jpg" },
+        { name: "Arijit Singh",     genre: "World",      img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Arijit_Singh_at_IIFA_2015.jpg/440px-Arijit_Singh_at_IIFA_2015.jpg" },
+        { name: "Shreya Ghoshal",   genre: "World",      img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Shreya_Ghoshal_at_Star_Screen_Awards_2018_%28cropped%29.jpg/440px-Shreya_Ghoshal_at_Star_Screen_Awards_2018_%28cropped%29.jpg" },
+        { name: "Shakira",          genre: "World",      img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Shakira_2010_%28cropped%29.jpg/440px-Shakira_2010_%28cropped%29.jpg" },
+        { name: "Bad Bunny",        genre: "World",      img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Bad_Bunny_2020_%28cropped%29.jpg/440px-Bad_Bunny_2020_%28cropped%29.jpg" },
+    ];
+
+    let currentGenre = "All";
+
+    function renderArtists(list) {
+        const grid = document.getElementById("artistGrid");
+        grid.innerHTML = "";
+        list.forEach((a, i) => {
+            const card = document.createElement("a");
+            card.className = "artist-card";
+            card.href = "#";
+            card.style.animationDelay = `${i * 0.06}s`;
+            card.innerHTML = `
+                <div class="artist-img-wrap">
+                    <img src="${a.img}" alt="${a.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(a.name)}&background=2a1a4a&color=ccbbee&size=200'">
+                </div>
+                <div class="artist-name">${a.name}</div>
+                <div class="artist-genre">${a.genre}</div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function filterArtists() {
+        const query = document.getElementById("searchInput").value.toLowerCase();
+        const filtered = artists.filter(a => {
+            const matchGenre = currentGenre === "All" || a.genre === currentGenre;
+            const matchSearch = a.name.toLowerCase().includes(query);
+            return matchGenre && matchSearch;
+        });
+        renderArtists(filtered);
+    }
+
+    function filterByGenre(genre, btn) {
+        currentGenre = genre;
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        btn.classList.add("active");
+        filterArtists();
+    }
+
+    renderArtists(artists);
+</script>
+<script>
+    function toggleDropdown() {
+        const dropdown = document.getElementById('userDropdown');
+        dropdown.classList.toggle('show');
+    }
+    window.onclick = function(e) {
+        if (!e.target.closest('.user-profile')) {
+            const d = document.getElementById('userDropdown');
+            if(d) d.classList.remove('show');
+        }
+    }
+</script>
+</body>
+</html>
