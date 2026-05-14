@@ -1,0 +1,91 @@
+<!-- Right Sidebar Player — include in every page with Jinja2: {% include 'player.html' %} -->
+<div class="player-sidebar" id="playerSidebar">
+
+    <!-- Toggle button -->
+    <button class="player-toggle" id="playerToggle" onclick="togglePlayer()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+            <path d="M9 18V5l12-2v13"></path>
+            <circle cx="6" cy="18" r="3"></circle>
+            <circle cx="18" cy="16" r="3"></circle>
+        </svg>
+    </button>
+
+    <div class="player-inner">
+
+        <!-- Album Art -->
+        <div class="player-art-wrap">
+            <img id="sidebarArt" src="" alt="Album Art" class="player-art">
+            <div class="player-art-placeholder" id="artPlaceholder">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(180,170,220,0.4)" stroke-width="1.5">
+                    <path d="M9 18V5l12-2v13"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Track Info -->
+        <div class="player-info">
+            <div class="player-track-name" id="sidebarTrackName">No track playing</div>
+            <div class="player-artist-name" id="sidebarArtistName">—</div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="player-progress-wrap">
+            <div class="player-time-row">
+                <span class="player-time" id="currentTime">0:00</span>
+                <span class="player-time" id="totalTime">0:00</span>
+            </div>
+            <div class="player-progress-bar" id="progressBar" onclick="seekAudio(event)">
+                <div class="player-progress-fill" id="progressFill"></div>
+                <div class="player-progress-dot" id="progressDot"></div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="player-controls">
+            <button class="ctrl-btn" onclick="prevTrack()" title="Previous">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                    <line x1="5" y1="19" x2="5" y2="5" stroke="white" stroke-width="2"></line>
+                </svg>
+            </button>
+            <button class="ctrl-btn play-btn-ctrl" id="playPauseBtn" onclick="togglePlay()">
+                <svg id="playIcon" width="22" height="22" viewBox="0 0 24 24" fill="white">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <svg id="pauseIcon" width="22" height="22" viewBox="0 0 24 24" fill="white" style="display:none;">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                </svg>
+            </button>
+            <button class="ctrl-btn" onclick="nextTrack()" title="Next">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                    <line x1="19" y1="5" x2="19" y2="19" stroke="white" stroke-width="2"></line>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Volume -->
+        <div class="player-volume-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(180,170,220,0.7)" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <div class="player-volume-bar" id="volumeBar" onclick="setVolume(event)">
+                <div class="player-volume-fill" id="volumeFill" style="width:80%;"></div>
+                <div class="player-volume-dot" id="volumeDot" style="left:80%;"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Hidden audio element -->
+    <audio id="sidebarAudio"></audio>
+</div>
+<div id="youtube-player"></div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="{{ url_for('static', filename='player.js') }}"></script>

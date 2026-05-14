@@ -146,3 +146,14 @@ input[type="submit"]:hover {
 .login-link a:hover {
     text-decoration: underline;
 }
+input[type="email"] {
+    background-color: #1a1625 !important;
+    color: #ddd8f0 !important;
+    border: 1px solid rgba(160, 150, 200, 0.25) !important;
+    border-radius: 4px;
+    padding: 10px 14px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 0.88rem;
+    outline: none;
+}

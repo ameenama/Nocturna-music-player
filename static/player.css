@@ -1,0 +1,444 @@
+/* ── Nocturna Sidebar Player — Black/Silver Cosmic Theme ── */
+
+.player-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 240px;
+    background: rgba(4, 4, 8, 0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-left: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: -4px 0 40px rgba(0, 0, 0, 0.6);
+    z-index: 999;
+    display: flex;
+    align-items: stretch;
+    /* Hidden off-screen by default — slides in when track plays */
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+/* Visible state — added by JS when a track is played */
+.player-sidebar.visible {
+    transform: translateX(0%);
+    pointer-events: all;
+}
+
+/* Collapsed state — user manually hides it */
+.player-sidebar.visible.collapsed {
+    transform: translateX(240px);
+}
+
+/* Sweeping light streak on left border — mirrors the bgvdo */
+.player-sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(0, 210, 200, 0.15) 15%,
+        rgba(200, 200, 210, 0.55) 40%,
+        rgba(255, 255, 255, 0.75) 50%,
+        rgba(200, 200, 210, 0.55) 60%,
+        rgba(210, 80, 180, 0.12) 85%,
+        transparent 100%
+    );
+    animation: sidebarStreak 6s ease-in-out infinite alternate;
+}
+
+@keyframes sidebarStreak {
+    0%   { opacity: 0.4; background-position: 0 0%; }
+    100% { opacity: 1;   background-position: 0 100%; }
+}
+
+/* Floating particles */
+.player-sidebar::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(
+        180deg,
+        transparent,
+        rgba(210, 60, 180, 0.06) 50%,
+        transparent
+    );
+    pointer-events: none;
+}
+
+/* Toggle button — appears when sidebar is visible */
+.player-toggle {
+    position: absolute;
+    left: -44px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 52px;
+    background: rgba(4, 4, 8, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-right: none;
+    border-radius: 12px 0 0 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(24px);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.4);
+    transition: background 0.2s;
+    /* Hidden until sidebar becomes visible */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, background 0.2s;
+}
+
+.player-sidebar.visible .player-toggle {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.player-toggle:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+/* Inner content */
+.player-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 20px 24px;
+    gap: 18px;
+    width: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+.player-inner::-webkit-scrollbar { display: none; }
+
+/* Label */
+.player-label {
+    align-self: flex-start;
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(160, 160, 175, 0.4);
+}
+
+/* Album Art */
+.player-art-wrap {
+    width: 160px;
+    height: 160px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, #111, #060608);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 0 20px rgba(0, 180, 160, 0.08),
+        0 0 40px rgba(0, 0, 0, 0.8);
+    flex-shrink: 0;
+}
+
+.player-art {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+}
+
+.player-art-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Spinning ring inside placeholder */
+.player-art-placeholder::before {
+    content: '';
+    position: absolute;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    border: 1px solid rgba(200, 200, 210, 0.1);
+    animation: spinRing 8s linear infinite;
+}
+.player-art-placeholder::after {
+    content: '';
+    position: absolute;
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    border: 1px dashed rgba(180, 180, 190, 0.06);
+    animation: spinRing 14s linear infinite reverse;
+}
+@keyframes spinRing {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Track Info */
+.player-info {
+    text-align: center;
+    width: 100%;
+}
+
+.player-track-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 5px;
+}
+
+.player-artist-name {
+    font-size: 11px;
+    color: rgba(160, 155, 175, 0.65);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Progress */
+.player-progress-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.player-time-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.player-time {
+    font-size: 10px;
+    color: rgba(160, 155, 175, 0.5);
+    font-variant-numeric: tabular-nums;
+}
+
+.player-progress-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+}
+
+.player-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, rgba(0, 180, 160, 0.7), rgba(200, 200, 220, 0.95));
+    border-radius: 3px;
+    transition: width 0.1s linear;
+}
+
+.player-progress-dot {
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: #e0e0f0;
+    border-radius: 50%;
+    box-shadow: 0 0 7px rgba(220, 220, 255, 0.8), 0 0 2px rgba(0, 210, 200, 0.5);
+    transition: left 0.1s linear;
+}
+
+/* Controls */
+.player-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.ctrl-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    opacity: 0.65;
+}
+
+.ctrl-btn:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.07);
+    box-shadow: 0 0 10px rgba(200, 200, 220, 0.1);
+}
+
+.play-btn-ctrl {
+    width: 46px;
+    height: 46px;
+    background: rgba(30, 30, 40, 0.8) !important;
+    border: 1px solid rgba(200, 200, 220, 0.2) !important;
+    opacity: 1 !important;
+}
+
+.play-btn-ctrl:hover {
+    background: rgba(60, 60, 75, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 0 16px rgba(200, 200, 255, 0.18), 0 0 4px rgba(0, 210, 200, 0.2) !important;
+}
+
+/* Divider */
+.player-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(200, 200, 220, 0.1), transparent);
+}
+
+/* Volume */
+.player-volume-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.player-volume-bar {
+    flex: 1;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+}
+
+.player-volume-fill {
+    height: 100%;
+    width: 80%;
+    background: linear-gradient(90deg, rgba(0, 180, 160, 0.7), rgba(200, 200, 220, 0.95));
+    border-radius: 3px;
+}
+
+.player-volume-dot {
+    position: absolute;
+    top: 50%;
+    left: 80%;
+    transform: translate(-50%, -50%);
+    width: 9px;
+    height: 9px;
+    background: #d8d8f0;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(200, 200, 255, 0.6);
+}
+
+/* Up Next queue */
+.player-queue-label {
+    align-self: flex-start;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(140, 140, 155, 0.4);
+    margin-top: 4px;
+}
+
+.player-queue {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.queue-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 7px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.queue-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.queue-item.active {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.queue-thumb {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #111;
+    border: 1px solid rgba(200, 200, 220, 0.1);
+}
+
+.queue-info { flex: 1; min-width: 0; }
+
+.queue-name {
+    color: rgba(210, 208, 225, 0.75);
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.queue-artist {
+    color: rgba(140, 138, 158, 0.5);
+    font-size: 9px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Push page content left when sidebar opens */
+body.player-open .ui-container,
+body.player-open .artists-page {
+    margin-right: 240px;
+    transition: margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body:not(.player-open) .ui-container,
+body:not(.player-open) .artists-page {
+    margin-right: 0;
+    transition: margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.player-sidebar {
+    z-index: 50;
+}
+.player-sidebar {
+    position: fixed;
+    top: 80px;
+    right: 0;
+    height: calc(100vh - 80px);
+    z-index: 50;
+    transform: translateX(240px);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.player-sidebar.visible {
+    transform: translateX(0);
+}
+
+.player-sidebar.collapsed {
+    transform: translateX(240px);
+}
+
+.player-sidebar.collapsed {
+    transform: translateX(240px);
+}
+
+.player-toggle {
+    top: 50%;
+    transform: translateY(-50%);
+}

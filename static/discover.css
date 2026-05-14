@@ -286,3 +286,250 @@ body {
 .user-dropdown a:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
+.loading {
+    color: rgb(160, 160, 170);
+    font-size: 14px;
+    padding: 20px;
+}
+
+.track-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+/* Bottom player bar */
+.bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(15, 8, 8, 0.97);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 200;
+    gap: 20px;
+}
+
+.bottom-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 200px;
+}
+
+.player-thumb-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.bottom-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.bottom-track {
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+}
+
+.bottom-artist {
+    font-size: 12px;
+    color: rgb(160, 160, 170);
+    margin-top: 3px;
+}
+
+.user-profile {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    min-width: 160px;
+    z-index: 200;
+    padding: 8px 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.user-dropdown a {
+    display: block;
+    padding: 14px 24px;
+    color: black !important;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.user-dropdown a:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+/* ── Footer ── */
+.footer {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 60px 40px 0;
+    margin-top: auto;
+}
+
+.footer-top {
+    display: flex;
+    gap: 60px;
+    flex-wrap: wrap;
+    padding-bottom: 48px;
+}
+
+.footer-brand {
+    flex: 2;
+    min-width: 200px;
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: white;
+    margin-bottom: 14px;
+}
+
+.footer-tagline {
+    font-size: 13px;
+    color: rgba(200, 200, 210, 0.55);
+    line-height: 1.6;
+    max-width: 220px;
+}
+
+.footer-col {
+    flex: 1;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footer-col h4 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 4px;
+}
+
+.footer-col a {
+    font-size: 13px;
+    color: rgba(210, 210, 220, 0.7);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-col a:hover {
+    color: white;
+}
+
+.social-icons {
+    display: flex;
+    gap: 16px;
+    margin-top: 4px;
+}
+
+.social-icons a {
+    color: rgba(210, 210, 220, 0.6);
+    transition: color 0.2s;
+}
+
+.social-icons a:hover {
+    color: white;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 20px 0;
+    text-align: center;
+}
+
+.footer-bottom p {
+    font-size: 12px;
+    color: rgba(200, 200, 210, 0.35);
+    letter-spacing: 1px;
+}
+.footer-bottom-cta {
+    width: 100%;
+    text-align: center;
+    font-size: 0.82rem;
+    color: rgba(200, 195, 220, 0.5);
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    margin-top: 10px;
+}
+
+.footer-bottom-cta a {
+    color: rgba(180, 160, 230, 0.9);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.footer-bottom-cta a:hover {
+    color: #d4c8ff;
+}
+.footer-middle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    gap: 16px;
+}
+
+.footer-middle-cta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: rgba(200, 195, 220, 0.6);
+}
+
+.footer-middle-cta a {
+    color: rgba(180, 160, 230, 0.9);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    border: 1px solid rgba(180, 160, 230, 0.4);
+    padding: 6px 16px;
+    border-radius: 20px;
+    transition: all 0.2s;
+}
+
+.footer-middle-cta a:hover {
+    background-color: rgba(180, 160, 230, 0.15);
+    color: #d4c8ff;
+}
+
+.footer-copyright {
+    font-size: 12px;
+    color: rgba(200, 200, 210, 0.35);
+    letter-spacing: 1px;
+    text-align: center;
+}

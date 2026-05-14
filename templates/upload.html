@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='upload.css') }}">
+</head>
+<body>
+
+<video class="bg-video" autoplay muted loop playsinline>
+    <source src="{{ url_for('static', filename='bgvdo.mp4') }}" type="video/mp4">
+</video>
+
+<div class="ui-container">
+    <header class="topbar">
+        <div class="logo-text">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna" class="nav-logo">
+            Nocturna
+        </div>
+        <nav class="nav-links">
+            <a href="/index">Home</a>
+            <a href="/discover">Discover</a>
+            <a href="/artists">Artists</a>
+            <a href="/releases">Releases</a>
+            {% if session.get('username') %}
+            <div class="user-profile">
+                <span class="username-display" onclick="toggleDropdown()">{{ session['username'] }}</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white" style="cursor:pointer;" onclick="toggleDropdown()">
+                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                </svg>
+                <div class="user-dropdown" id="userDropdown" style="display:none;">
+                    <a href="/upload">Upload Music</a>
+                    <a href="/settings">Settings</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="/login" class="login-btn">Login</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <div class="content">
+        <h1 class="page-title">Upload Music</h1>
+        <p class="page-sub">Share your music with the Nocturna community. All tracks are reviewed before going live.</p>
+
+        {% if success %}
+        <div class="alert alert-success">✓ {{ success }}</div>
+        {% endif %}
+        {% if error %}
+        <div class="alert alert-error">✕ {{ error }}</div>
+        {% endif %}
+
+        <!-- Upload form -->
+        <div class="upload-card">
+            <h2 class="card-title">Submit a Track</h2>
+            <form method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Track Title <span class="required">*</span></label>
+                        <input type="text" name="title" placeholder="e.g. Midnight Echo" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Artist Name <span class="required">*</span></label>
+                        <input type="text" name="artist_name" placeholder="Your artist name" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Audio URL <span class="required">*</span></label>
+                    <input type="url" name="audio_url" placeholder="https://... (direct link to .mp3 or stream URL)" required>
+                    <span class="field-hint">Paste a direct link to your audio file (e.g. from SoundCloud, Dropbox, etc.)</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Cover Image URL</label>
+                    <input type="url" name="cover_url" placeholder="https://... (link to cover image)">
+                    <span class="field-hint">Optional — paste a link to your cover art image</span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Genre</label>
+                        <select name="genre">
+                            <option value="">— Select Genre —</option>
+                            <option value="Pop">Pop</option>
+                            <option value="Hip-Hop">Hip-Hop</option>
+                            <option value="Electronic">Electronic</option>
+                            <option value="Rock">Rock</option>
+                            <option value="R&B">R&B</option>
+                            <option value="Classical">Classical</option>
+                            <option value="Jazz">Jazz</option>
+                            <option value="Acoustic">Acoustic</option>
+                            <option value="Chill">Chill</option>
+                            <option value="Folk">Folk</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Album Name <span class="optional">(optional)</span></label>
+                        <input type="text" name="album" placeholder="e.g. Dark Hours EP">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">SUBMIT TRACK</button>
+            </form>
+        </div>
+
+        <!-- My uploaded tracks -->
+        <div class="upload-card">
+            <h2 class="card-title">My Uploaded Tracks</h2>
+            {% if my_tracks %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Artist</th>
+                            <th>Genre</th>
+                            <th>Album</th>
+                            <th>Submitted</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for track in my_tracks %}
+                        <tr>
+                            <td>{{ track.title }}</td>
+                            <td>{{ track.artist_name }}</td>
+                            <td>{{ track.genre or '—' }}</td>
+                            <td>{{ track.album or '—' }}</td>
+                            <td>{{ track.created_at.strftime('%d %b %Y') if track.created_at else '—' }}</td>
+                            <td>
+                                <span class="badge {{ 'badge-approved' if track.approved else 'badge-pending' }}">
+                                    {{ 'Approved' if track.approved else 'Pending' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="empty-msg">You haven't uploaded any tracks yet.</p>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <footer class="footer">
+        <div class="footer-left">
+            <div class="footer-logo">
+                <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna" class="footer-logo-img">
+                Nocturna
+            </div>
+            <p class="footer-tagline">Soundtrack your night.</p>
+        </div>
+        <div class="footer-links">
+            <a href="/index">Home</a>
+            <a href="/discover">Discover</a>
+            <a href="/artists">Artists</a>
+            <a href="/about">About Us</a>
+        </div>
+        <p class="footer-copy">&copy; 2026 Nocturna. All rights reserved.</p>
+    </footer>
+</div>
+
+<script>
+    function toggleDropdown() {
+        event.stopPropagation();
+        var d = document.getElementById('userDropdown');
+        d.style.display = d.style.display === 'none' ? 'block' : 'none';
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.user-profile')) {
+            var d = document.getElementById('userDropdown');
+            if (d) d.style.display = 'none';
+        }
+    });
+</script>
+</body>
+</html>

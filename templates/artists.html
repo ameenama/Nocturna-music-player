@@ -2,42 +2,42 @@
 <html lang="en">
 <head>
     <title>Nocturna – Artists</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='artists.css') }}">    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Tenor+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='artists.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Tenor+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='player.css') }}">
 </head>
 <body>
 
 <video class="bg-video" autoplay muted loop playsinline>
-   <source src="{{ url_for('static', filename='bgvdo.mp4') }}" type="video/mp4">
+    <source src="{{ url_for('static', filename='bgvdo.mp4') }}" type="video/mp4">
 </video>
 
 <div class="artists-page">
-
     <header class="topbar">
         <div class="logo-text">
-           <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">
             Nocturna
         </div>
         <nav class="nav-links">
             <a href="/index">Home</a>
-<a href="/discover">Discover</a>
-<a href="/artists">Artists</a>
-<a href="/releases">Releases</a>
-{% if session.get('username') %}
-    <div class="user-profile" onclick="toggleDropdown()">
-        <span class="username-display">{{ session['username'] }}</span>
-        <div class="user-avatar">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
-            </svg>
-        </div>
-        <div class="user-dropdown" id="userDropdown">
-            <a href="/logout">Logout</a>
-        </div>
-    </div>
-{% else %}
-    <a href="/login" class="login-btn">Login</a>
-{% endif %}
+            <a href="/discover">Discover</a>
+            <a href="/artists" class="active">Artists</a>
+            <a href="/releases">Releases</a>
+            {% if session.get('username') %}
+            <div class="user-profile">
+                <span class="username-display" onclick="toggleDropdown()">{{ session['username'] }}</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white" style="cursor:pointer;" onclick="toggleDropdown()">
+                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                </svg>
+                <div class="user-dropdown" id="userDropdown" style="display:none;">
+                    <a href="/settings">Settings</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="/login" class="login-btn">Login</a>
+            {% endif %}
         </nav>
     </header>
 
@@ -49,28 +49,30 @@
     <div class="filter-bar">
         <div class="search-box">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="lightgray" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input type="text" id="searchInput" placeholder="Search artists…" oninput="filterArtists()">
+            <input type="text" id="searchInput" placeholder="Search artists…" oninput="searchArtists()">
         </div>
         <div class="filter-chips">
-            <button class="chip active" onclick="filterByGenre('All', this)">All</button>
-            <button class="chip" onclick="filterByGenre('Pop', this)">Pop</button>
-            <button class="chip" onclick="filterByGenre('Hip-Hop', this)">Hip-Hop</button>
-            <button class="chip" onclick="filterByGenre('Electronic', this)">Electronic</button>
-            <button class="chip" onclick="filterByGenre('Rock', this)">Rock</button>
-            <button class="chip" onclick="filterByGenre('R&B', this)">R&B</button>
-            <button class="chip" onclick="filterByGenre('Classical', this)">Classical</button>
-            <button class="chip" onclick="filterByGenre('Jazz', this)">Jazz</button>
-            <button class="chip" onclick="filterByGenre('World', this)">World</button>
+            <button class="chip active" onclick="loadArtists('', this)">All</button>
+            <button class="chip" onclick="loadArtists('pop', this)">Pop</button>
+            <button class="chip" onclick="loadArtists('hiphop', this)">Hip-Hop</button>
+            <button class="chip" onclick="loadArtists('electronic', this)">Electronic</button>
+            <button class="chip" onclick="loadArtists('rock', this)">Rock</button>
+            <button class="chip" onclick="loadArtists('rnb', this)">R&B</button>
+            <button class="chip" onclick="loadArtists('classical', this)">Classical</button>
+            <button class="chip" onclick="loadArtists('jazz', this)">Jazz</button>
+            <button class="chip" onclick="loadArtists('world', this)">World</button>
         </div>
     </div>
 
-    <div class="artists-grid" id="artistGrid"></div>
+    <div class="artists-grid" id="artistGrid">
+        <div class="loading">Loading artists...</div>
+    </div>
 
     <footer class="footer">
         <div class="footer-top">
             <div class="footer-brand">
                 <div class="footer-logo">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 18V5l12-2v13"></path>
                         <circle cx="6" cy="18" r="3"></circle>
                         <circle cx="18" cy="16" r="3"></circle>
@@ -81,130 +83,248 @@
             </div>
             <div class="footer-col">
                 <h4>Music</h4>
-                <a href="#">Discover</a>
-                <a href="#">Artists</a>
-                <a href="#">New Releases</a>
-                <a href="#">Charts</a>
+                <a href="/discover">Discover</a>
+                <a href="/artists">Artists</a>
+                <a href="/releases">New Releases</a>
             </div>
             <div class="footer-col">
                 <h4>Company</h4>
-                <a href="#">About Us</a>
-                <a href="#">Careers</a>
-                <a href="#">Contact</a>
+                <a href="/about">About Us</a>
+                <a href="/contact">Contact</a>
             </div>
             <div class="footer-col">
                 <h4>Legal</h4>
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-            </div>
-            <div class="footer-col">
-                <h4>Follow Us</h4>
-                <div class="social-icons">
-                    <a href="#" aria-label="Instagram">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle></svg>
-                    </a>
-                    <a href="#" aria-label="Twitter">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                    </a>
-                    <a href="#" aria-label="YouTube">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                    </a>
-                    <a href="#" aria-label="Spotify">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
-                    </a>
-                </div>
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms">Terms of Service</a>
             </div>
         </div>
-        <div class="footer-bottom">
-            <p>© 2025 Nocturna. All rights reserved.</p>
-        </div>
+        <div class="footer-middle">
+    <div class="footer-middle-cta">
+        <span>Are you an artist?</span>
+        <a href="/request-artist">Join as an Artist</a>
+    </div>
+    <div class="footer-copyright">
+        <p>© 2025 Nocturna. All rights reserved.</p>
+    </div>
+</div>
     </footer>
+</div>
 
+<!-- Sidebar Player -->
+<div class="player-sidebar" id="playerSidebar">
+    <button class="player-toggle" id="playerToggle" onclick="togglePlayer()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+            <path d="M9 18V5l12-2v13"></path>
+            <circle cx="6" cy="18" r="3"></circle>
+            <circle cx="18" cy="16" r="3"></circle>
+        </svg>
+    </button>
+    <div class="player-inner">
+        <div class="player-label">Now Playing</div>
+
+        <div class="player-art-wrap">
+            <img id="sidebarArt" src="" alt="Album Art" class="player-art">
+            <div class="player-art-placeholder" id="artPlaceholder">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(180,180,200,0.3)" stroke-width="1.5">
+                    <path d="M9 18V5l12-2v13"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+            </div>
+        </div>
+
+        <div class="player-info">
+            <div class="player-track-name" id="sidebarTrackName">No track playing</div>
+            <div class="player-artist-name" id="sidebarArtistName">—</div>
+        </div>
+
+        <div class="player-progress-wrap">
+            <div class="player-time-row">
+                <span class="player-time" id="currentTime">0:00</span>
+                <span class="player-time" id="totalTime">0:00</span>
+            </div>
+            <div class="player-progress-bar" id="progressBar" onclick="seekAudio(event)">
+                <div class="player-progress-fill" id="progressFill"></div>
+                <div class="player-progress-dot" id="progressDot"></div>
+            </div>
+        </div>
+
+        <div class="player-controls">
+            <button class="ctrl-btn" onclick="prevTrack()" title="Previous">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                    <line x1="5" y1="19" x2="5" y2="5" stroke="white" stroke-width="2"></line>
+                </svg>
+            </button>
+            <button class="ctrl-btn play-btn-ctrl" id="playPauseBtn" onclick="togglePlay()">
+                <svg id="playIcon" width="22" height="22" viewBox="0 0 24 24" fill="white">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <svg id="pauseIcon" width="22" height="22" viewBox="0 0 24 24" fill="white" style="display:none;">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                </svg>
+            </button>
+            <button class="ctrl-btn" onclick="nextTrack()" title="Next">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                    <line x1="19" y1="5" x2="19" y2="19" stroke="white" stroke-width="2"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="player-divider"></div>
+
+        <div class="player-volume-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(180,180,200,0.6)" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <div class="player-volume-bar" id="volumeBar" onclick="setVolume(event)">
+                <div class="player-volume-fill" id="volumeFill" style="width:80%;"></div>
+                <div class="player-volume-dot" id="volumeDot" style="left:80%;"></div>
+            </div>
+        </div>
+
+        <div class="player-divider"></div>
+
+        <div class="player-queue-label">Up Next</div>
+        <div class="player-queue" id="playerQueue"></div>
+    </div>
+    <audio id="sidebarAudio"></audio>
 </div>
 
 <script>
-    const artists = [
-        { name: "Taylor Swift", genre: "Pop", img: "/static/taylor.jpeg" },
-        { name: "Ed Sheeran",   genre: "Pop", img: "/static/ed.jpg" },
-        { name: "Dua Lipa",     genre: "Pop", img: "/static/dua.jpg" },
-        { name: "Charlie Puth", genre: "Pop", img: "/static/charlie.jpg" },
-        { name: "Adele",        genre: "Pop", img: "/static/adele.jpg" },
-        { name: "Kendrick Lamar",   genre: "Hip-Hop",    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Kendrick_Lamar_KAABOO_2019_%28cropped%29.jpg/440px-Kendrick_Lamar_KAABOO_2019_%28cropped%29.jpg" },
-        { name: "Drake",            genre: "Hip-Hop",    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Drake_July_2016.jpg/440px-Drake_July_2016.jpg" },
-        { name: "J. Cole",          genre: "Hip-Hop",    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/J._Cole_2018_%28cropped%29.jpg/440px-J._Cole_2018_%28cropped%29.jpg" },
-        { name: "Cardi B",          genre: "Hip-Hop",    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Cardi_B_2019_%28cropped%29.jpg/440px-Cardi_B_2019_%28cropped%29.jpg" },
-        { name: "The Weeknd",       genre: "R&B",        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/The_Weeknd_2015.jpg/440px-The_Weeknd_2015.jpg" },
-        { name: "Beyoncé",          genre: "R&B",        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Beyonce_at_The_2019_ESPYS_%28cropped%29.jpg/440px-Beyonce_at_The_2019_ESPYS_%28cropped%29.jpg" },
-        { name: "Bruno Mars",       genre: "R&B",        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Bruno_Mars_2014_at_the_Grammys.jpg/440px-Bruno_Mars_2014_at_the_Grammys.jpg" },
-        { name: "SZA",              genre: "R&B",        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/SZA_2018_%28cropped%29.jpg/440px-SZA_2018_%28cropped%29.jpg" },
-        { name: "Daft Punk",        genre: "Electronic", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Daft_Punk_-_Alive_2007_Tour.jpg/440px-Daft_Punk_-_Alive_2007_Tour.jpg" },
-        { name: "Calvin Harris",    genre: "Electronic", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Calvin_Harris_2012_Cropped.jpg/440px-Calvin_Harris_2012_Cropped.jpg" },
-        { name: "Skrillex",         genre: "Electronic", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Skrillex_2014_%28cropped%29.jpg/440px-Skrillex_2014_%28cropped%29.jpg" },
-        { name: "Coldplay",         genre: "Rock",       img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/thirty/Coldplay_2017_%28cropped%29.jpg/440px-Coldplay_2017_%28cropped%29.jpg" },
-        { name: "Linkin Park",      genre: "Rock",       img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Linkin_Park_2012.jpg/440px-Linkin_Park_2012.jpg" },
-        { name: "Arctic Monkeys",   genre: "Rock",       img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Alex_Turner_2014_%28cropped%29.jpg/440px-Alex_Turner_2014_%28cropped%29.jpg" },
-        { name: "A.R. Rahman",      genre: "Classical",  img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/A._R._Rahman_at_the_2011_Cannes_Film_Festival.jpg/440px-A._R._Rahman_at_the_2011_Cannes_Film_Festival.jpg" },
-        { name: "Ludovico Einaudi", genre: "Classical",  img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Ludovico_Einaudi_2017_%28cropped%29.jpg/440px-Ludovico_Einaudi_2017_%28cropped%29.jpg" },
-        { name: "Hans Zimmer",      genre: "Classical",  img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Hans_Zimmer_2017_%28cropped%29.jpg/440px-Hans_Zimmer_2017_%28cropped%29.jpg" },
-        { name: "Norah Jones",      genre: "Jazz",       img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Norah_Jones_2012_%28cropped%29.jpg/440px-Norah_Jones_2012_%28cropped%29.jpg" },
-        { name: "Diana Krall",      genre: "Jazz",       img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Diana_Krall_%28cropped%29.jpg/440px-Diana_Krall_%28cropped%29.jpg" },
-        { name: "Arijit Singh",     genre: "World",      img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Arijit_Singh_at_IIFA_2015.jpg/440px-Arijit_Singh_at_IIFA_2015.jpg" },
-        { name: "Shreya Ghoshal",   genre: "World",      img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Shreya_Ghoshal_at_Star_Screen_Awards_2018_%28cropped%29.jpg/440px-Shreya_Ghoshal_at_Star_Screen_Awards_2018_%28cropped%29.jpg" },
-        { name: "Shakira",          genre: "World",      img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Shakira_2010_%28cropped%29.jpg/440px-Shakira_2010_%28cropped%29.jpg" },
-        { name: "Bad Bunny",        genre: "World",      img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Bad_Bunny_2020_%28cropped%29.jpg/440px-Bad_Bunny_2020_%28cropped%29.jpg" },
-    ];
+    const CLIENT_ID = '44ba3383';
 
-    let currentGenre = "All";
-
-    function renderArtists(list) {
-        const grid = document.getElementById("artistGrid");
-        grid.innerHTML = "";
-        list.forEach((a, i) => {
-            const card = document.createElement("a");
-            card.className = "artist-card";
-            card.href = "#";
-            card.style.animationDelay = `${i * 0.06}s`;
-            card.innerHTML = `
-                <div class="artist-img-wrap">
-                    <img src="${a.img}" alt="${a.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(a.name)}&background=2a1a4a&color=ccbbee&size=200'">
-                </div>
-                <div class="artist-name">${a.name}</div>
-                <div class="artist-genre">${a.genre}</div>
-            `;
-            grid.appendChild(card);
-        });
-    }
-
-    function filterArtists() {
-        const query = document.getElementById("searchInput").value.toLowerCase();
-        const filtered = artists.filter(a => {
-            const matchGenre = currentGenre === "All" || a.genre === currentGenre;
-            const matchSearch = a.name.toLowerCase().includes(query);
-            return matchGenre && matchSearch;
-        });
-        renderArtists(filtered);
-    }
-
-    function filterByGenre(genre, btn) {
-        currentGenre = genre;
-        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-        btn.classList.add("active");
-        filterArtists();
-    }
-
-    renderArtists(artists);
-</script>
-<script>
     function toggleDropdown() {
-        const dropdown = document.getElementById('userDropdown');
-        dropdown.classList.toggle('show');
+        event.stopPropagation();
+        var d = document.getElementById('userDropdown');
+        if (d.style.display === 'none') { d.style.display = 'block'; } else { d.style.display = 'none'; }
     }
-    window.onclick = function(e) {
+    document.addEventListener('click', function(e) {
         if (!e.target.closest('.user-profile')) {
-            const d = document.getElementById('userDropdown');
-            if(d) d.classList.remove('show');
+            var d = document.getElementById('userDropdown');
+            if (d) d.style.display = 'none';
+        }
+    });
+
+    async function loadArtists(tag, btn) {
+        if (btn) {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        const grid = document.getElementById('artistGrid');
+        grid.innerHTML = '<div class="loading">Loading artists...</div>';
+        try {
+            const url = tag
+                ? `https://api.jamendo.com/v3.0/artists/?client_id=${CLIENT_ID}&format=json&limit=20&tags=${tag}&order=popularity_total`
+                : `https://api.jamendo.com/v3.0/artists/?client_id=${CLIENT_ID}&format=json&limit=20&order=popularity_total`;
+            const res = await fetch(url);
+            const data = await res.json();
+            if (!data.results || data.results.length === 0) {
+                grid.innerHTML = '<div class="loading">No artists found.</div>';
+                return;
+            }
+            grid.innerHTML = '';
+
+            // For each artist, fetch their top track so clicking plays music
+            data.results.forEach(async (artist, i) => {
+                const card = document.createElement('a');
+                card.className = 'artist-card';
+                card.href = '#';
+                card.style.animationDelay = `${i * 0.06}s`;
+                const imgSrc = artist.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&background=2a1a4a&color=ccbbee&size=200`;
+                card.innerHTML = `
+                    <div class="artist-img-wrap">
+                        <img src="${imgSrc}" alt="${artist.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&background=2a1a4a&color=ccbbee&size=200'">
+                    </div>
+                    <div class="artist-name">${artist.name}</div>
+                    <div class="artist-genre">${artist.joindate ? artist.joindate.substring(0, 4) : ''}</div>
+                `;
+
+                // Fetch artist's top track for playback on click
+                card.onclick = async (e) => {
+                    e.preventDefault();
+                    try {
+                        const tRes = await fetch(`https://api.jamendo.com/v3.0/tracks/?client_id=${CLIENT_ID}&format=json&limit=5&artist_id=${artist.id}&order=popularity_total&audioformat=mp32`);
+                        const tData = await tRes.json();
+                        if (tData.results && tData.results.length > 0) {
+                            const tracks = tData.results.map(t => ({
+                                audio: t.audio,
+                                name: t.name,
+                                artist: t.artist_name,
+                                image: t.album_image
+                            }));
+                            setPlaylist(tracks, 0);
+                            const t = tData.results[0];
+                            playTrack(t.audio, t.name, t.artist_name, t.album_image);
+                        }
+                    } catch (err) { console.error('Failed to load artist tracks', err); }
+                };
+
+                grid.appendChild(card);
+            });
+        } catch (err) {
+            grid.innerHTML = '<div class="loading">Failed to load artists.</div>';
         }
     }
+
+    async function searchArtists() {
+        const query = document.getElementById('searchInput').value.trim();
+        if (!query) { loadArtists('', null); return; }
+        const grid = document.getElementById('artistGrid');
+        grid.innerHTML = '<div class="loading">Searching...</div>';
+        try {
+            const res = await fetch(`https://api.jamendo.com/v3.0/artists/?client_id=${CLIENT_ID}&format=json&limit=20&name=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            if (!data.results || data.results.length === 0) {
+                grid.innerHTML = '<div class="loading">No artists found.</div>';
+                return;
+            }
+            grid.innerHTML = '';
+            data.results.forEach((artist, i) => {
+                const card = document.createElement('a');
+                card.className = 'artist-card';
+                card.href = '#';
+                const imgSrc = artist.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&background=2a1a4a&color=ccbbee&size=200`;
+                card.innerHTML = `
+                    <div class="artist-img-wrap">
+                        <img src="${imgSrc}" alt="${artist.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&background=2a1a4a&color=ccbbee&size=200'">
+                    </div>
+                    <div class="artist-name">${artist.name}</div>
+                `;
+                card.onclick = async (e) => {
+                    e.preventDefault();
+                    try {
+                        const tRes = await fetch(`https://api.jamendo.com/v3.0/tracks/?client_id=${CLIENT_ID}&format=json&limit=5&artist_id=${artist.id}&order=popularity_total&audioformat=mp32`);
+                        const tData = await tRes.json();
+                        if (tData.results && tData.results.length > 0) {
+                            const tracks = tData.results.map(t => ({
+                                audio: t.audio,
+                                name: t.name,
+                                artist: t.artist_name,
+                                image: t.album_image
+                            }));
+                            setPlaylist(tracks, 0);
+                            const t = tData.results[0];
+                            playTrack(t.audio, t.name, t.artist_name, t.album_image);
+                        }
+                    } catch (err) { console.error('Failed to load artist tracks', err); }
+                };
+                grid.appendChild(card);
+            });
+        } catch (err) {
+            grid.innerHTML = '<div class="loading">Search failed.</div>';
+        }
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `.loading { color: rgb(160,160,170); font-size: 14px; padding: 20px; }`;
+    document.head.appendChild(style);
+
+    loadArtists('', null);
 </script>
+<script src="{{ url_for('static', filename='player.js') }}"></script>
 </body>
 </html>

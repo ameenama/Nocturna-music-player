@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='terms.css') }}">
+</head>
+<body>
+
+<video class="bg-video" autoplay muted loop playsinline>
+    <source src="{{ url_for('static', filename='bgvdo.mp4') }}" type="video/mp4">
+</video>
+
+<div class="ui-container">
+    <header class="topbar">
+        <div class="logo-text">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna" class="nav-logo">
+            Nocturna
+        </div>
+        <nav class="nav-links">
+            <a href="/index">Home</a>
+            <a href="/discover">Discover</a>
+            <a href="/artists">Artists</a>
+            <a href="/releases">Releases</a>
+            {% if session.get('username') %}
+            <div class="user-profile">
+                <span class="username-display" onclick="toggleDropdown()">{{ session['username'] }}</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white" style="cursor:pointer;" onclick="toggleDropdown()">
+                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                </svg>
+                <div class="user-dropdown" id="userDropdown" style="display:none;">
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="/login" class="login-btn">Login</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <div class="content">
+
+        <section class="section">
+            <h1 class="page-title">Terms of Service</h1>
+            <p class="last-updated">Last updated: May 2026</p>
+            <p class="intro-text">Please read these Terms of Service carefully before using Nocturna. By accessing or using our platform, you agree to be bound by these terms.</p>
+        </section>
+
+        <section class="section">
+            <div class="terms-block">
+
+                <div class="terms-item">
+                    <h2>1. Acceptance of Terms</h2>
+                    <p>By creating an account or using Nocturna in any way, you confirm that you are at least 13 years of age and agree to these Terms of Service. If you do not agree, please do not use our platform.</p>
+                </div>
+
+                <div class="terms-item">
+                    <h2>2. Your Account</h2>
+                    <p>You are responsible for maintaining the confidentiality of your account credentials. You agree to notify us immediately of any unauthorised use of your account. Nocturna is not liable for any loss resulting from unauthorised access to your account.</p>
+                </div>
+
+                <div class="terms-item">
+                    <h2>3. Use of the Service</h2>
+                    <p>Nocturna grants you a limited, non-exclusive, non-transferable licence to access and use the platform for personal, non-commercial purposes. You agree not to:</p>
+                    <ul>
+                        <li>Copy, distribute, or reproduce any content without permission</li>
+                        <li>Use the service for any unlawful purpose</li>
+                        <li>Attempt to gain unauthorised access to any part of the platform</li>
+                        <li>Upload or share content that is harmful, offensive, or violates third-party rights</li>
+                    </ul>
+                </div>
+
+                <div class="terms-item">
+                    <h2>4. Content & Intellectual Property</h2>
+                    <p>All music, artwork, logos, and content on Nocturna are the property of their respective owners. You may not use, reproduce, or distribute any content from our platform without prior written permission from the rights holder.</p>
+                </div>
+
+                <div class="terms-item">
+                    <h2>5. Subscriptions & Payments</h2>
+                    <p>Some features of Nocturna require a paid subscription. By subscribing, you authorise us to charge your chosen payment method on a recurring basis. Subscriptions auto-renew unless cancelled before the renewal date. Refunds are handled on a case-by-case basis.</p>
+                </div>
+
+                <div class="terms-item">
+                    <h2>6. Termination</h2>
+                    <p>We reserve the right to suspend or terminate your account at any time if you violate these Terms of Service. You may also delete your account at any time from your account settings.</p>
+                </div>
+
+                <div class="terms-item">
+                    <h2>7. Disclaimers</h2>
+                    <p>Nocturna is provided "as is" without warranties of any kind. We do not guarantee uninterrupted or error-free service. We are not responsible for any loss of data or damages arising from use of the platform.</p>
+                </div>
+
+                <div class="terms-item">
+                    <h2>8. Changes to Terms</h2>
+                    <p>We may update these Terms of Service at any time. We will notify users of significant changes. Continued use of the platform after changes constitutes acceptance of the updated terms.</p>
+                </div>
+
+                <div class="terms-item">
+                    <h2>9. Contact</h2>
+                    <p>If you have any questions about these Terms, please contact us at <a href="/contact">support@nocturna.com</a>.</p>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="footer">
+        <div class="footer-left">
+            <div class="footer-logo">
+                <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna" class="footer-logo-img">
+                Nocturna
+            </div>
+            <p class="footer-tagline">Soundtrack your night.</p>
+        </div>
+        <div class="footer-links">
+            <a href="/index">Home</a>
+            <a href="/discover">Discover</a>
+            <a href="/artists">Artists</a>
+            <a href="/releases">Releases</a>
+            <a href="/about">About Us</a>
+        </div>
+        <p class="footer-copy">&copy; 2026 Nocturna. All rights reserved.</p>
+    </footer>
+
+</div>
+
+<script>
+    function toggleDropdown() {
+        event.stopPropagation();
+        var d = document.getElementById('userDropdown');
+        if (d.style.display === 'none') {
+            d.style.display = 'block';
+        } else {
+            d.style.display = 'none';
+        }
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.user-profile')) {
+            var d = document.getElementById('userDropdown');
+            if (d) d.style.display = 'none';
+        }
+    });
+</script>
+
+</body>
+</html>

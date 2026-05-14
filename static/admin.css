@@ -1,0 +1,515 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background-color: #0a0812;
+    color: rgb(220, 215, 235);
+    font-family: sans-serif;
+    min-height: 100vh;
+}
+
+/* ── Layout ── */
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+    width: 220px;
+    background: rgba(15, 10, 25, 0.98);
+    border-right: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    flex-direction: column;
+    padding: 28px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 24px 28px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: white;
+}
+
+.sidebar-logo img {
+    width: 34px;
+    height: 34px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    flex: 1;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(200,195,220,0.55);
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+}
+
+.nav-item:hover {
+    color: white;
+    background: rgba(255,255,255,0.05);
+}
+
+.nav-item.active {
+    color: white;
+    background: rgba(180,160,230,0.12);
+    border-right: 2px solid rgba(180,160,230,0.7);
+}
+
+.sidebar-logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(200,100,100,0.7);
+    text-decoration: none;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    transition: color 0.2s;
+}
+
+.sidebar-logout:hover { color: #ff8080; }
+
+/* ── Main ── */
+.main {
+    margin-left: 220px;
+    flex: 1;
+    padding: 36px 40px;
+    min-height: 100vh;
+}
+
+/* ── Topbar ── */
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+}
+
+.page-title {
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    color: white;
+}
+
+.admin-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(180,160,230,0.12);
+    border: 1px solid rgba(180,160,230,0.25);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(200,185,240,0.85);
+}
+
+/* ── Stats ── */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 36px;
+}
+
+.stat-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 24px 28px;
+}
+
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 6px;
+}
+
+.stat-label {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(200,185,230,0.45);
+}
+
+/* ── Section ── */
+.section {
+    margin-bottom: 48px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.section-header h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(220,210,255,0.75);
+}
+
+/* Filter form */
+.filter-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-form input,
+.filter-form select {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 5px;
+    padding: 8px 14px;
+    color: #e0d8ff;
+    font-size: 0.82rem;
+    outline: none;
+    font-family: sans-serif;
+}
+
+.filter-form input::placeholder { color: rgba(200,185,230,0.3); }
+
+.filter-form select option { background: #1a0f2e; }
+
+.filter-form button {
+    background: white;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 18px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.2s;
+}
+
+.filter-form button:hover { background: #cfcfcf; }
+
+/* ── Table ── */
+.table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+thead tr {
+    background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+th {
+    padding: 13px 16px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(200,185,230,0.5);
+    white-space: nowrap;
+}
+
+td {
+    padding: 13px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: rgba(215,210,235,0.8);
+    vertical-align: middle;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+.banned-row td { opacity: 0.55; }
+
+.msg-preview {
+    max-width: 260px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.empty {
+    text-align: center;
+    padding: 32px;
+    color: rgba(200,185,230,0.3);
+    font-style: italic;
+}
+
+/* ── Badges ── */
+.badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.badge-active {
+    background: rgba(80, 200, 120, 0.15);
+    color: #6ee89a;
+    border: 1px solid rgba(80,200,120,0.3);
+}
+
+.badge-banned {
+    background: rgba(220, 80, 80, 0.15);
+    color: #f08080;
+    border: 1px solid rgba(220,80,80,0.3);
+}
+
+/* ── Action buttons ── */
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btn-edit, .btn-ban, .btn-delete, .btn-save, .btn-cancel {
+    padding: 5px 14px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.2s;
+    display: inline-block;
+}
+
+.btn-edit {
+    background: rgba(100,140,255,0.15);
+    color: #90aaff;
+    border: 1px solid rgba(100,140,255,0.3);
+}
+
+.btn-ban {
+    background: rgba(255,180,60,0.12);
+    color: #ffcc70;
+    border: 1px solid rgba(255,180,60,0.3);
+}
+
+.btn-delete {
+    background: rgba(220,80,80,0.12);
+    color: #f08080;
+    border: 1px solid rgba(220,80,80,0.3);
+}
+
+.btn-edit:hover, .btn-ban:hover, .btn-delete:hover { opacity: 0.75; }
+
+/* ── Edit form ── */
+.edit-form {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 32px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(200,185,230,0.55);
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 5px;
+    padding: 10px 14px;
+    color: #e0d8ff;
+    font-size: 0.88rem;
+    outline: none;
+    font-family: sans-serif;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    border-color: rgba(160,130,220,0.55);
+}
+
+.form-error {
+    background: rgba(220,80,80,0.1);
+    border: 1px solid rgba(220,80,80,0.3);
+    color: #f08080;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.btn-save {
+    background: white;
+    color: black;
+    padding: 10px 24px;
+    font-size: 12px;
+}
+
+.btn-save:hover { background: #cfcfcf; }
+
+.btn-cancel {
+    background: rgba(255,255,255,0.05);
+    color: rgba(210,205,230,0.7);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 10px 24px;
+    font-size: 12px;
+}
+
+.btn-cancel:hover { background: rgba(255,255,255,0.09); }
+
+/* Badge count on sidebar */
+.badge-count {
+    background: rgba(180,160,230,0.3);
+    color: #e0d8ff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-left: auto;
+    letter-spacing: 0;
+}
+
+/* ── Artist Request Cards ── */
+.artist-request-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 22px 26px;
+    margin-bottom: 14px;
+}
+
+.ar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.ar-title { display: flex; flex-direction: column; gap: 4px; }
+
+.ar-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.04em;
+}
+
+.ar-username {
+    font-size: 0.78rem;
+    color: rgba(200,185,230,0.45);
+    letter-spacing: 0.08em;
+}
+
+.ar-details {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.ar-detail-row {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 0.82rem;
+    color: rgba(210,205,235,0.7);
+}
+
+.ar-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(200,185,230,0.4);
+}
+
+.ar-socials {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.ar-social-link {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(180,160,230,0.75);
+    text-decoration: none;
+    border: 1px solid rgba(180,160,230,0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    transition: all 0.2s;
+}
+
+.ar-social-link:hover {
+    background: rgba(180,160,230,0.12);
+    color: #d4c8ff;
+    border-color: rgba(180,160,230,0.4);
+}

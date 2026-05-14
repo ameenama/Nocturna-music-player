@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <link rel="stylesheet" href="{{ url_for('static', filename='about.css') }}">
+</head>
+<body>
+
+<video class="bg-video" autoplay muted loop playsinline>
+    <source src="{{ url_for('static', filename='bgvdo.mp4') }}" type="video/mp4">
+</video>
+
+<div class="ui-container">
+    <header class="topbar">
+        <div class="logo-text">
+           <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna" class="nav-logo">
+            Nocturna
+        </div>
+        <nav class="nav-links">
+    <a href="/index">Home</a>
+    <a href="/discover">Discover</a>
+    <a href="/artists">Artists</a>
+    <a href="/releases">Releases</a>
+    {% if session.get('username') %}
+    <div class="user-profile">
+        <span class="username-display" onclick="toggleDropdown()">{{ session['username'] }}</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white" style="cursor:pointer;" onclick="toggleDropdown()">
+            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+        </svg>
+        <div class="user-dropdown" id="userDropdown" style="display:none;">
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+    {% else %}
+    <a href="/login" class="login-btn">Login</a>
+    {% endif %}
+</nav>
+    </header>
+
+    <div class="content">
+
+        <!-- About Us -->
+        <section class="section">
+            <h1 class="page-title">About Us</h1>
+            <p class="about-text">Nocturna is a music streaming platform built for those who feel the most alive after dark. We believe music is more than sound — it is an experience, an emotion, and a journey. Our platform is designed to bring you closer to the artists and sounds that move you, whether you're lost in a late-night drive or searching for the perfect soundtrack to your midnight thoughts.</p>
+            <p class="about-text">We curate the finest dark ambient, electronic, atmospheric, and alternative music from both established and emerging artists around the world. Every track on Nocturna is hand-picked to ensure the highest quality listening experience — glossy, refined, and perfectly tuned for the ultimate auditory journey.</p>
+            <p class="about-text">At Nocturna, we are passionate about connecting artists with listeners in a meaningful way. We give artists a platform to share their vision, and we give listeners a space to discover music that truly resonates. Whether you're here to explore new genres, follow your favourite artists, or simply lose yourself in sound — Nocturna is your home.</p>
+            <p class="about-text">Soundtrack your night with Nocturna. Stream for free or subscribe for the full experience.</p>
+        </section>
+
+        <!-- Our Mission -->
+        <section class="section">
+            <h2 class="section-title">Our Mission</h2>
+            <div class="mission-grid">
+                <div class="mission-card">
+                    <div class="mission-icon">🎵</div>
+                    <h3>Curated Sound</h3>
+                    <p>Every track is carefully selected to deliver a premium listening experience across every mood and genre.</p>
+                </div>
+                <div class="mission-card">
+                    <div class="mission-icon">🌙</div>
+                    <h3>Built for the Night</h3>
+                    <p>Nocturna is designed for those who thrive after midnight — a sanctuary for late-night listeners and dreamers.</p>
+                </div>
+                <div class="mission-card">
+                    <div class="mission-icon">🎤</div>
+                    <h3>Artist First</h3>
+                    <p>We champion independent and emerging artists, giving them the platform and visibility they deserve.</p>
+                </div>
+                <div class="mission-card">
+                    <div class="mission-icon">🌍</div>
+                    <h3>Global Reach</h3>
+                    <p>From dark ambient to world music, we bring together sounds from every corner of the globe.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Customer Service -->
+        <section class="section">
+            <h2 class="section-title">Customer Service &amp; Support</h2>
+            
+                <li>
+                    <a href="/contact">Contact Us</a> — Reach out to our support team directly and we'll get back to you as soon as possible.
+                </li>
+            </ol>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-left">
+            <div class="footer-logo">
+                <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna" class="footer-logo-img">
+                Nocturna
+            </div>
+            <p class="footer-tagline">Soundtrack your night.</p>
+        </div>
+        <div class="footer-links">
+        <a href="/index">Home</a>
+        <a href="/discover">Discover</a>
+        <a href="/artists">Artists</a>
+        <a href="/releases">Releases</a>
+        <a href="/about">About Us</a>
+</div>
+        <p class="footer-copy">&copy; 2026 Nocturna. All rights reserved.</p>
+    </footer>
+
+</div>
+<script>
+    function toggleDropdown() {
+        event.stopPropagation();
+        var d = document.getElementById('userDropdown');
+        if (d.style.display === 'none') {
+            d.style.display = 'block';
+        } else {
+            d.style.display = 'none';
+        }
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.user-profile')) {
+            var d = document.getElementById('userDropdown');
+            if (d) d.style.display = 'none';
+        }
+    });
+</script>
+</body>
+</html>

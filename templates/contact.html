@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='contact.css') }}">
+</head>
+<body>
+
+<video class="bg-video" autoplay muted loop playsinline>
+    <source src="{{ url_for('static', filename='bgvdo.mp4') }}" type="video/mp4">
+</video>
+
+<div class="ui-container">
+    <header class="topbar">
+        <div class="logo-text">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna" class="nav-logo">
+            Nocturna
+        </div>
+        <nav class="nav-links">
+            <a href="/index">Home</a>
+            <a href="/discover">Discover</a>
+            <a href="/artists">Artists</a>
+            <a href="/releases">Releases</a>
+            {% if session.get('username') %}
+            <div class="user-profile">
+                <span class="username-display" onclick="toggleDropdown()">{{ session['username'] }}</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white" style="cursor:pointer;" onclick="toggleDropdown()">
+                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                </svg>
+                <div class="user-dropdown" id="userDropdown" style="display:none;">
+                    <a href="/settings">Settings</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="/login" class="login-btn">Login</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <div class="content">
+
+        <section class="section">
+            <h1 class="page-title">Contact Us</h1>
+            {% if success %}
+<p style="color: #a0f0a0; font-size: 0.9rem; margin-bottom: 16px; letter-spacing: 0.05em;">
+    ✓ Your message has been sent. We'll get back to you soon.
+</p>
+{% endif %}
+            <p class="intro-text">Have a question, feedback, or just want to say hello? We'd love to hear from you. Fill in the form below and our team will get back to you as soon as possible.</p>
+        </section>
+
+        <section class="section contact-grid">
+
+            <!-- Contact Form -->
+            <div class="contact-form-wrap">
+                <form class="contact-form" action="/contact" method="post">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" placeholder="Your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <select id="subject" name="subject">
+                            <option value="">— Select a topic —</option>
+                            <option value="general">General Enquiry</option>
+                            <option value="support">Technical Support</option>
+                            <option value="billing">Billing & Subscription</option>
+                            <option value="artist">Artist / Label Enquiry</option>
+                            <option value="feedback">Feedback</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" placeholder="Write your message here…" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">SEND MESSAGE</button>
+                </form>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="contact-info">
+                <div class="info-card">
+                    <div class="info-icon">📧</div>
+                    <h3>Email</h3>
+                    <p>support@nocturna.com</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🕐</div>
+                    <h3>Response Time</h3>
+                    <p>We typically respond within 24–48 hours on business days.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🎤</div>
+                    <h3>Artist Enquiries</h3>
+                    <p>artists@nocturna.com</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🌍</div>
+                    <h3>Follow Us</h3>
+                    <div class="social-row">
+                        <a href="#">Instagram</a>
+                        <a href="#">Twitter / X</a>
+                        <a href="#">YouTube</a>
+                        <a href="#">Spotify</a>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+
+    <footer class="footer">
+        <div class="footer-left">
+            <div class="footer-logo">
+                <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna" class="footer-logo-img">
+                Nocturna
+            </div>
+            <p class="footer-tagline">Soundtrack your night.</p>
+        </div>
+        <div class="footer-links">
+            <a href="/index">Home</a>
+            <a href="/discover">Discover</a>
+            <a href="/artists">Artists</a>
+            <a href="/releases">Releases</a>
+            <a href="/about">About Us</a>
+        </div>
+        <p class="footer-copy">&copy; 2026 Nocturna. All rights reserved.</p>
+    </footer>
+
+</div>
+
+<script>
+    function toggleDropdown() {
+        event.stopPropagation();
+        var d = document.getElementById('userDropdown');
+        if (d.style.display === 'none') {
+            d.style.display = 'block';
+        } else {
+            d.style.display = 'none';
+        }
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.user-profile')) {
+            var d = document.getElementById('userDropdown');
+            if (d) d.style.display = 'none';
+        }
+    });
+</script>
+
+</body>
+</html>
