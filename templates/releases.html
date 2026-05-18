@@ -21,6 +21,7 @@
             <a href="/discover">Discover</a>
             <a href="/artists">Artists</a>
             <a href="/releases" class="active">Releases</a>
+            <a href="/podcasts">Podcasts</a>
             {% if session.get('username') %}
             <div class="user-profile">
                 <span class="username-display" onclick="toggleDropdown()">{{ session['username'] }}</span>
@@ -37,7 +38,14 @@
             {% endif %}
         </nav>
     </header>
-
+<!-- YouTube Search Bar -->
+        <section class="section">
+            <div class="yt-search-wrap">
+                <input type="text" id="ytSearchInput" placeholder="Search any song, artist or album on YouTube…" class="yt-search-input">
+                <button onclick="searchYouTube()" class="yt-search-btn">Search</button>
+            </div>
+            <div id="ytSearchResults" class="yt-results-grid"></div>
+        </section>
     <div class="content">
         <section class="section">
             <h2 class="section-title">New Electronic</h2>
@@ -57,7 +65,6 @@
         </section>
     </div>
 </div>
-
 <!-- Sidebar Player -->
 <div class="player-sidebar" id="playerSidebar">
     <button class="player-toggle" id="playerToggle" onclick="togglePlayer()">
@@ -159,6 +166,7 @@
                 <a href="/discover">Discover</a>
                 <a href="/artists">Artists</a>
                 <a href="/releases">New Releases</a>
+                <a href="/podcasts">Podcasts</a>
             </div>
             <div class="footer-col">
                 <h4>Company</h4>
@@ -245,7 +253,62 @@
     loadReleases('ambient', 'ambientGrid');
     loadReleases('pop', 'popGrid');
     loadReleases('rock', 'rockGrid');
+    // YouTube Search
+async function searchYouTube() {
+    const query = document.getElementById('ytSearchInput').value.trim();
+    if (!query) return;
+    const resultsDiv = document.getElementById('ytSearchResults');
+    resultsDiv.innerHTML = '<div class="loading">Searching YouTube...</div>';
+    try {
+        const res = await fetch(`/youtube-search?query=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (!data.results || data.results.length === 0) {
+            resultsDiv.innerHTML = '<div class="loading">No results found.</div>';
+            return;
+        }
+        resultsDiv.innerHTML = '';
+        data.results.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'track-item';
+            card.style.cursor = 'pointer';
+            card.innerHTML = `
+                <div class="track-thumb" style="background:linear-gradient(135deg,#1a1a2e,#e94560);display:flex;align-items:center;justify-content:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                </div>
+                <div class="track-info">
+                    <span class="track-name">${item.title}</span>
+                    <span class="track-artist">${item.channel}</span>
+                </div>
+                <span style="color:rgba(180,170,220,0.7);font-size:11px;letter-spacing:1px;">YT</span>
+            `;
+            card.onclick = () => playYouTubeTrack(item.videoId, item.title, item.channel, item.thumbnail);
+            resultsDiv.appendChild(card);
+        });
+    } catch (err) {
+        resultsDiv.innerHTML = '<div class="loading">Search failed. Try again.</div>';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('ytSearchInput');
+    if (input) {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchYouTube();
+        });
+    }
+});
+// Allow pressing Enter to search
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('ytSearchInput');
+    if (input) {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchYouTube();
+        });
+    }
+});
 </script>
+<div id="yt-iframe"></div>
+<script src="https://www.youtube.com/iframe_api"></script>
 <script src="{{ url_for('static', filename='player.js') }}"></script>
 </body>
 </html>

@@ -1,7 +1,15 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+import os
+from flask import jsonify
+import requests
 
+load_dotenv()
+
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
+LISTEN_NOTES_API_KEY = os.getenv("LISTEN_NOTES_API_KEY")
 app = Flask(__name__)
 app.secret_key = 'nocturna_secret_key'
 
@@ -56,6 +64,19 @@ class Track(db.Model):
     uploaded_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     approved = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Podcast(db.Model):
+    id          = db.Column(db.Integer, primary_key=True)
+    title       = db.Column(db.String(200), nullable=False)
+    artist_name = db.Column(db.String(200), nullable=False)
+    audio_url   = db.Column(db.String(1000), nullable=False)
+    cover_url   = db.Column(db.String(1000), nullable=True)
+    genre       = db.Column(db.String(100), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    status      = db.Column(db.String(20), default='pending')
+    uploaded_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at  = db.Column(db.DateTime, default=datetime.utcnow)
+    uploader    = db.relationship('User', backref='podcasts')
 
 with app.app_context():
     db.create_all()
@@ -667,8 +688,13 @@ def jamendo_tracks():
     results = []
     for t in data.get('results', []):
         results.append({
+            # Frontend contract (static/player.js) expects: audio, name, artist, image
             'audio': t.get('audio'),
             'name': t.get('name'),
+            'artist': t.get('artist_name'),
+            'image': t.get('album_image'),
+
+            # Backward-compatible extras
             'artist_name': t.get('artist_name'),
             'album_image': t.get('album_image'),
         })
@@ -711,10 +737,181 @@ def jamendo_albums():
         })
 
     return {'results': results}
+import requests
+from flask import jsonify
+
+@app.route('/youtube-search')
+@app.route('/youtube-search')
+def youtube_search():
+    query = request.args.get('query', '')
+    if not query:
+        return jsonify({'error': 'No query provided'}), 400
+    try:
+        url = 'https://www.googleapis.com/youtube/v3/search'
+        params = {
+            'part': 'snippet',
+            'q': query + ' song',
+            'type': 'video',
+            'videoCategoryId': '10',
+            'maxResults': 10,
+            'key': YOUTUBE_API_KEY
+        }
+        res = requests.get(url, params=params, timeout=10)
+        data = res.json()
+        results = []
+        for item in data.get('items', []):
+            video_id = item.get('id', {}).get('videoId', '')
+            snippet = item.get('snippet', {})
+            thumbnails = snippet.get('thumbnails', {})
+            thumb_url = thumbnails.get('high', {}).get('url', '') or thumbnails.get('medium', {}).get('url', '')
+            if video_id:
+                results.append({
+                    'videoId': video_id,
+                    'title': snippet.get('title', ''),
+                    'channel': snippet.get('channelTitle', ''),
+                    'thumbnail': thumb_url
+                })
+        return jsonify({'results': results})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+@app.route('/debug-youtube')
+def debug_youtube():
+    import requests
+    key = YOUTUBE_API_KEY
+    if not key:
+        return {'error': 'API key is None - not loaded from .env'}
+    
+    url = 'https://www.googleapis.com/youtube/v3/search'
+    params = {
+        'part': 'snippet',
+        'q': 'shape of you',
+        'type': 'video',
+        'maxResults': 3,
+        'key': key
+    }
+    try:
+        res = requests.get(url, params=params, timeout=10)
+        return res.json()
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/podcast-search')
+def podcast_search():
+    query = request.args.get('query')
+    url = "https://listen-api.listennotes.com/api/v2/search"
+    headers = {
+        "X-ListenAPI-Key": LISTEN_NOTES_API_KEY
+    }
+    params = {
+        "q": query,
+        "type": "podcast"
+    }
+    response = requests.get(url, headers=headers, params=params)
+    return jsonify(response.json())
+    query = request.args.get('query')
+
+    url = "https://listen-api.listennotes.com/api/v2/search"
+
+    headers = {
+        "X-ListenAPI-Key": LISTEN_NOTES_API_KEY
+    }
+
+    params = {
+        "q": query,
+        "type": "podcast"
+    }
+
+    response = requests.get(
+        url,
+        headers=headers,
+        params=params
+    )
+
+    return jsonify(response.json())
+@app.route('/podcast-episodes/<podcast_id>')
+def podcast_episodes(podcast_id):
+
+    url = f"https://listen-api.listennotes.com/api/v2/podcasts/{podcast_id}"
+
+    headers = {
+        "X-ListenAPI-Key": LISTEN_NOTES_API_KEY
+    }
+
+    response = requests.get(url, headers=headers)
+
+    return jsonify(response.json())
+# ── ADD THESE ROUTES TO app.py ──────────────────────────────────────────────
+# Add the Podcast model alongside your existing models:
+
+# ── Podcast page route ──
+@app.route('/podcasts')
+def podcasts():
+    if 'username' not in session:
+        return redirect(url_for('home'))
+    uploaded_podcasts = Podcast.query.filter_by(status='approved').order_by(Podcast.created_at.desc()).all()
+    return render_template('podcast.html', uploaded_podcasts=uploaded_podcasts)
 
 
+# ── Artist podcast upload route ──
+@app.route('/upload/podcast', methods=['POST'])
+def upload_podcast():
+    if 'username' not in session:
+        return redirect(url_for('home'))
+    user = User.query.filter_by(username=session['username']).first()
+    if not user.is_artist and user.username != 'admin':
+        return redirect(url_for('upload_request'))
+
+    title       = request.form.get('title', '').strip()
+    artist_name = request.form.get('artist_name', '').strip()
+    audio_url   = request.form.get('audio_url', '').strip()
+    cover_url   = request.form.get('cover_url', '').strip()
+    genre       = request.form.get('genre', '').strip()
+    description = request.form.get('description', '').strip()
+
+    if title and artist_name and audio_url:
+        pod = Podcast(
+            title       = title,
+            artist_name = artist_name,
+            audio_url   = audio_url,
+            cover_url   = cover_url or None,
+            genre       = genre or None,
+            description = description or None,
+            status      = 'approved' if user.username == 'admin' else 'pending',
+            uploaded_by = user.id
+        )
+        db.session.add(pod)
+        db.session.commit()
+
+    return redirect(url_for('upload'))
 
 
+# ── Admin: approve/reject podcasts ──
+@app.route('/admin/approve_podcast/<int:pod_id>')
+def admin_approve_podcast(pod_id):
+    if not admin_required():
+        return redirect(url_for('home'))
+    pod = Podcast.query.get_or_404(pod_id)
+    pod.status = 'approved'
+    db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/admin/reject_podcast/<int:pod_id>')
+def admin_reject_podcast(pod_id):
+    if not admin_required():
+        return redirect(url_for('home'))
+    pod = Podcast.query.get_or_404(pod_id)
+    pod.status = 'rejected'
+    db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/admin/delete_podcast/<int:pod_id>')
+def admin_delete_podcast(pod_id):
+    if not admin_required():
+        return redirect(url_for('home'))
+    pod = Podcast.query.get_or_404(pod_id)
+    db.session.delete(pod)
+    db.session.commit()
+    return redirect(url_for('admin'))
 if __name__ == '__main__':
     app.run(debug=True)
 

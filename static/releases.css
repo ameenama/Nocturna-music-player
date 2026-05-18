@@ -383,3 +383,57 @@ body {
     letter-spacing: 1px;
     text-align: center;
 }
+/* YouTube Search */
+.yt-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 500px;
+    height: 36px;
+    font-size: 12px;
+    margin: 0 auto 16px auto;
+}
+.yt-search-input {
+    flex: 1;
+    height: 40px;       /* smaller height */
+    padding: 0 14px;
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(180, 170, 220, 0.2);
+    border-radius: 6px;
+    color: white;
+    font-size: 13px;
+    outline: none;
+}
+
+.yt-search-input:focus {
+    border-color: rgba(180, 170, 220, 0.5);
+}
+
+.yt-search-input::placeholder {
+    color: rgba(200, 200, 210, 0.45);
+}
+
+.yt-search-btn {
+    height: 40px;
+    padding: 0 18px;
+    background-color: rgba(180, 170, 220, 0.12);
+    border: 1px solid rgba(180, 170, 220, 0.28);
+    border-radius: 6px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.yt-search-btn:hover {
+    background-color: rgba(180, 170, 220, 0.22);
+}
+.yt-results-grid {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(20, 10, 10, 0.7);
+    border-radius: 10px;
+    padding: 10px;
+}

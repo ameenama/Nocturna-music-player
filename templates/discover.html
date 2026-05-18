@@ -21,6 +21,7 @@
             <a href="/discover" class="active">Discover</a>
             <a href="/artists">Artists</a>
             <a href="/releases">Releases</a>
+            <a href="/podcasts">Podcasts</a>
             {% if session.get('username') %}
             <div class="user-profile">
                 <span class="username-display" onclick="toggleDropdown()">{{ session['username'] }}</span>
@@ -28,7 +29,6 @@
                     <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
                 </svg>
                 <div class="user-dropdown" id="userDropdown" style="display:none;">
-                    <a href="/upload">Upload Music</a>
                     <a href="/settings">Settings</a>
                     <a href="/logout">Logout</a>
                 </div>
@@ -40,6 +40,15 @@
     </header>
 
     <div class="content">
+        <!-- YouTube Search Bar -->
+        <section class="section">
+            <div class="yt-search-wrap">
+                <input type="text" id="ytSearchInput" placeholder="Search any song, artist or album on YouTube…" class="yt-search-input">
+                <button onclick="searchYouTube()" class="yt-search-btn">Search</button>
+            </div>
+            <div id="ytSearchResults" class="yt-results-grid"></div>
+        </section>
+
         <section class="section">
             <h2 class="section-title">Moods &amp; Genres</h2>
             <div class="genres-grid">
@@ -71,7 +80,13 @@
                 <div class="loading">Loading albums...</div>
             </div>
         </section>
+        <div class="podcast-section">
 
+    <h2>Trending Podcasts</h2>
+
+    <div id="podcast-container"></div>
+
+</div>
         <!-- Artist Uploads Section -->
         {% if uploaded_tracks %}
         <section class="section">
@@ -179,7 +194,7 @@
         <div class="player-queue-label">Up Next</div>
         <div class="player-queue" id="playerQueue"></div>
     </div>
-    <audio id="sidebarAudio"></audio>
+   <audio id="sidebarAudio" style="display:none;"></audio>
 </div>
  <footer class="footer">
         <div class="footer-top">
@@ -199,6 +214,7 @@
                 <a href="/discover">Discover</a>
                 <a href="/artists">Artists</a>
                 <a href="/releases">New Releases</a>
+                <a href="/podcasts">Podcasts</a>
             </div>
             <div class="footer-col">
                 <h4>Company</h4>
@@ -221,14 +237,12 @@
         <p>© 2025 Nocturna. All rights reserved.</p>
     </div>
 </div>
-            <div class="footer-copyright">
-                <p>© 2025 Nocturna. All rights reserved.</p>
-            </div>
-        </div>
     </footer>
-</div>
+<div id="yt-iframe" style="position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;"></div>
+<audio id="sidebarAudio" style="display:none;"></audio>
+
 <script>
-    const CLIENT_ID = null; // moved to server proxy; kept for backward compatibility
+    const CLIENT_ID = null;
 
     function toggleDropdown() {
         event.stopPropagation();
@@ -326,7 +340,104 @@
     function loadByTag(tag) { loadTracks(tag); }
     loadTracks(null);
     loadAlbums();
+
+    // ── YouTube Search ──
+    let ytPlayer = null;
+    let ytReady = false;
+
+    // Called automatically by YouTube IFrame API when ready
+    function onYouTubeIframeAPIReady() {
+        ytPlayer = new YT.Player('yt-iframe', {
+            height: '1',
+            width: '1',
+            videoId: '',
+            playerVars: { autoplay: 0, controls: 0 },
+            events: {
+                onReady: () => { ytReady = true; },
+                onStateChange: (e) => {
+                    if (e.data === YT.PlayerState.PLAYING) showPauseIcon();
+                    if (e.data === YT.PlayerState.PAUSED) showPlayIcon();
+                    if (e.data === YT.PlayerState.ENDED) showPlayIcon();
+                }
+            }
+        });
+    }
+
+    function playYouTubeTrack(videoId, title, channel, thumbnail) {
+        // Update sidebar info
+        showSidebar();
+        document.getElementById('sidebarTrackName').textContent = title;
+        document.getElementById('sidebarArtistName').textContent = channel;
+
+        const artImg = document.getElementById('sidebarArt');
+        const placeholder = document.getElementById('artPlaceholder');
+        if (thumbnail) {
+            artImg.src = thumbnail;
+            artImg.style.display = 'block';
+            placeholder.style.display = 'none';
+        } else {
+            artImg.style.display = 'none';
+            placeholder.style.display = 'flex';
+        }
+
+        // Stop regular audio if playing
+        const sidebarAudio = document.getElementById('sidebarAudio');
+        if (sidebarAudio) { sidebarAudio.pause(); sidebarAudio.src = ''; }
+
+        // Play via hidden YouTube player
+        if (ytReady && ytPlayer) {
+            ytPlayer.loadVideoById(videoId);
+            ytPlayer.playVideo();
+        } else {
+            // Fallback: open in new tab if iframe not ready
+            window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+        }
+    }
+
+    async function searchYouTube() {
+        const query = document.getElementById('ytSearchInput').value.trim();
+        if (!query) return;
+        const resultsDiv = document.getElementById('ytSearchResults');
+        resultsDiv.innerHTML = '<div class="loading">Searching YouTube...</div>';
+        try {
+            const res = await fetch(`/youtube-search?query=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            if (!data.results || data.results.length === 0) {
+                resultsDiv.innerHTML = '<div class="loading">No results found.</div>';
+                return;
+            }
+            resultsDiv.innerHTML = '';
+            data.results.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'track-item';
+                card.style.cursor = 'pointer';
+                card.innerHTML = `
+                    <div class="track-thumb" style="background:url('${item.thumbnail}') center/cover;border-radius:4px;width:44px;height:44px;flex-shrink:0;"></div>
+                    <div class="track-info">
+                        <span class="track-name">${item.title}</span>
+                        <span class="track-artist">${item.channel}</span>
+                    </div>
+                    <span style="color:rgba(180,170,220,0.7);font-size:11px;letter-spacing:1px;">YT</span>
+                `;
+                card.onclick = () => playYouTubeTrack(item.videoId, item.title, item.channel, item.thumbnail);
+                resultsDiv.appendChild(card);
+            });
+        } catch (err) {
+            resultsDiv.innerHTML = '<div class="loading">Search failed. Try again.</div>';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const input = document.getElementById('ytSearchInput');
+        if (input) {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') searchYouTube();
+            });
+        }
+    });
 </script>
+
 <script src="{{ url_for('static', filename='player.js') }}"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>

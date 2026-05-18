@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Nocturna – Podcasts</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='discover.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='podcast.css') }}">
+</head>
+<body>
+
+<video class="bg-video" autoplay muted loop playsinline>
+    <source src="{{ url_for('static', filename='bgvdo.mp4') }}" type="video/mp4">
+</video>
+
+<div class="ui-container" id="appContainer">
+
+    <header class="topbar">
+        <div class="logo-text">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna" class="nav-logo">
+            Nocturna
+        </div>
+        <nav class="nav-links">
+            <a href="/index">Home</a>
+            <a href="/discover">Discover</a>
+            <a href="/artists">Artists</a>
+            <a href="/releases">Releases</a>
+            <a href="/podcasts" class="active">Podcasts</a>
+            {% if session.get('username') %}
+            <div class="user-profile">
+                <span class="username-display" onclick="toggleDropdown()">{{ session['username'] }}</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white" style="cursor:pointer;" onclick="toggleDropdown()">
+                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                </svg>
+                <div class="user-dropdown" id="userDropdown" style="display:none;">
+                    <a href="/settings">Settings</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="/login" class="login-btn">Login</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <!-- PAGE HERO -->
+    <div class="pod-hero">
+        <div class="pod-hero-text">
+            <h1>Podcasts</h1>
+            <p>Conversations, stories & ideas — curated for the night.</p>
+        </div>
+        <div class="pod-search-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(200,200,220,0.5)" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" id="podSearchInput" placeholder="Search podcasts…" oninput="filterPodcasts()">
+        </div>
+    </div>
+
+    <!-- CATEGORY FILTER -->
+    <div class="pod-filter-bar">
+        <button class="pod-chip active" onclick="selectCategory('all', this)">All</button>
+        <button class="pod-chip" onclick="selectCategory('technology', this)">Technology</button>
+        <button class="pod-chip" onclick="selectCategory('music', this)">Music</button>
+        <button class="pod-chip" onclick="selectCategory('true crime', this)">True Crime</button>
+        <button class="pod-chip" onclick="selectCategory('comedy', this)">Comedy</button>
+        <button class="pod-chip" onclick="selectCategory('science', this)">Science</button>
+        <button class="pod-chip" onclick="selectCategory('business', this)">Business</button>
+        <button class="pod-chip" onclick="selectCategory('health', this)">Health</button>
+        <button class="pod-chip" onclick="selectCategory('history', this)">History</button>
+        <button class="pod-chip" onclick="selectCategory('arts', this)">Arts</button>
+    </div>
+
+    <!-- MAIN LAYOUT: grid + player -->
+    <div class="pod-layout" id="podLayout">
+
+        <!-- PODCAST GRID -->
+        <div class="pod-grid-wrap">
+
+            <!-- Artist uploads section -->
+            {% if uploaded_podcasts %}
+            <div class="pod-section-label">From Nocturna Artists</div>
+            <div class="pod-grid" id="artistPodGrid">
+                {% for pod in uploaded_podcasts %}
+                <div class="pod-card" onclick="openPodcast({
+                    id: 'artist_{{ pod.id }}',
+                    title: '{{ pod.title | replace("'", "\\'") }}',
+                    author: '{{ pod.artist_name | replace("'", "\\'") }}',
+                    image: '{{ pod.cover_url or "" }}',
+                    description: '{{ pod.description or "" | replace("'", "\\'") }}',
+                    episodes: [{
+                        title: '{{ pod.title | replace("'", "\\'") }}',
+                        audio: '{{ pod.audio_url }}',
+                        duration: '',
+                        date: '{{ pod.created_at.strftime("%b %d, %Y") if pod.created_at else "" }}'
+                    }],
+                    category: '{{ pod.genre or "music" }}'
+                })">
+                    <div class="pod-card-img">
+                        {% if pod.cover_url %}
+                        <img src="{{ pod.cover_url }}" alt="{{ pod.title }}" onerror="this.style.display='none'">
+                        {% else %}
+                        <div class="pod-card-img-placeholder">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(180,180,200,0.3)" stroke-width="1.5">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                <line x1="12" y1="19" x2="12" y2="23"/>
+                                <line x1="8" y1="23" x2="16" y2="23"/>
+                            </svg>
+                        </div>
+                        {% endif %}
+                        <div class="pod-card-overlay">
+                            <div class="pod-play-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pod-card-info">
+                        <div class="pod-card-title">{{ pod.title }}</div>
+                        <div class="pod-card-author">{{ pod.artist_name }}</div>
+                        <div class="pod-card-tag">{{ pod.genre or 'Music' }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Trending from API -->
+            <div class="pod-section-label" id="trendingLabel">Trending Podcasts</div>
+            <div class="pod-grid" id="trendingPodGrid">
+                <div class="pod-loading">
+                    <div class="pod-spinner"></div>
+                    Loading podcasts…
+                </div>
+            </div>
+
+        </div>
+
+        <!-- DEDICATED PODCAST PLAYER (right panel) -->
+        <div class="pod-player" id="podPlayer">
+            <div class="pod-player-empty" id="podPlayerEmpty">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="rgba(180,180,200,0.2)" stroke-width="1">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                    <line x1="12" y1="19" x2="12" y2="23"/>
+                    <line x1="8" y1="23" x2="16" y2="23"/>
+                </svg>
+                <p>Select a podcast<br>to start listening</p>
+            </div>
+
+            <div class="pod-player-content" id="podPlayerContent" style="display:none;">
+
+                <!-- Podcast cover + info -->
+                <div class="pod-player-header">
+                    <div class="pod-player-cover" id="podPlayerCover">
+                        <img id="podPlayerImg" src="" alt="">
+                    </div>
+                    <div class="pod-player-meta">
+                        <div class="pod-player-tag" id="podPlayerTag">Podcast</div>
+                        <div class="pod-player-title" id="podPlayerTitle">—</div>
+                        <div class="pod-player-author" id="podPlayerAuthor">—</div>
+                        <div class="pod-player-desc" id="podPlayerDesc"></div>
+                    </div>
+                </div>
+
+                <!-- Now playing episode -->
+                <div class="pod-now-playing" id="podNowPlaying" style="display:none;">
+                    <div class="pod-np-label">Now Playing</div>
+                    <div class="pod-np-title" id="podNpTitle">—</div>
+                    <div class="pod-np-date" id="podNpDate"></div>
+
+                    <!-- Progress bar -->
+                    <div class="pod-progress-wrap">
+                        <div class="pod-progress-bar" id="podProgressBar" onclick="podSeek(event)">
+                            <div class="pod-progress-fill" id="podProgressFill"></div>
+                            <div class="pod-progress-dot" id="podProgressDot"></div>
+                        </div>
+                        <div class="pod-time-row">
+                            <span id="podCurTime">0:00</span>
+                            <span id="podTotalTime">0:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="pod-controls">
+                        <button class="pod-ctrl" onclick="podSkip(-15)" title="Back 15s">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+                            </svg>
+                            <span>15</span>
+                        </button>
+                        <button class="pod-ctrl pod-ctrl-prev" onclick="podPrevEp()" title="Previous episode">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                                <polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5" stroke="white" stroke-width="2"/>
+                            </svg>
+                        </button>
+                        <button class="pod-ctrl pod-play-pause" id="podPlayPauseBtn" onclick="podTogglePlay()">
+                            <svg id="podPlayIcon" width="26" height="26" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            <svg id="podPauseIcon" width="26" height="26" viewBox="0 0 24 24" fill="white" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                        </button>
+                        <button class="pod-ctrl pod-ctrl-next" onclick="podNextEp()" title="Next episode">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                                <polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19" stroke="white" stroke-width="2"/>
+                            </svg>
+                        </button>
+                        <button class="pod-ctrl" onclick="podSkip(30)" title="Forward 30s">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-3.51"/>
+                            </svg>
+                            <span>30</span>
+                        </button>
+                    </div>
+
+                    <!-- Volume + speed -->
+                    <div class="pod-extras">
+                        <div class="pod-volume-row">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(180,180,200,0.6)" stroke-width="2">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                            </svg>
+                            <div class="pod-vol-bar" id="podVolBar" onclick="podSetVolume(event)">
+                                <div class="pod-vol-fill" id="podVolFill" style="width:80%"></div>
+                                <div class="pod-vol-dot" id="podVolDot" style="left:80%"></div>
+                            </div>
+                        </div>
+                        <div class="pod-speed-row">
+                            <span class="pod-speed-label">Speed</span>
+                            <div class="pod-speed-btns">
+                                <button class="pod-speed-btn" onclick="podSetSpeed(0.75)">0.75x</button>
+                                <button class="pod-speed-btn active" onclick="podSetSpeed(1)">1x</button>
+                                <button class="pod-speed-btn" onclick="podSetSpeed(1.25)">1.25x</button>
+                                <button class="pod-speed-btn" onclick="podSetSpeed(1.5)">1.5x</button>
+                                <button class="pod-speed-btn" onclick="podSetSpeed(2)">2x</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Episode list -->
+                <div class="pod-episodes">
+                    <div class="pod-ep-label">Episodes</div>
+                    <div class="pod-ep-list" id="podEpList"></div>
+                </div>
+
+            </div>
+        </div>
+
+    </div><!-- end pod-layout -->
+
+</div><!-- end ui-container -->
+
+<audio id="podAudio"></audio>
+<footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18V5l12-2v13"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <circle cx="18" cy="16" r="3"></circle>
+                    </svg>
+                    Nocturna
+                </div>
+                <p class="footer-tagline">Curated sounds for those who thrive after midnight.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Music</h4>
+                <a href="/discover">Discover</a>
+                <a href="/artists">Artists</a>
+                <a href="/releases">New Releases</a>
+                <a href="/podcasts">Podcasts</a>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <a href="/about">About Us</a>
+                <a href="/contact">Contact</a>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms">Terms of Service</a>
+            </div>
+        </div>
+
+            <div class="footer-middle">
+    <div class="footer-middle-cta">
+        <span>Are you an artist?</span>
+        <a href="/request-artist">Join as an Artist</a>
+    </div>
+    <div class="footer-copyright">
+        <p>© 2025 Nocturna. All rights reserved.</p>
+    </div>
+</div>
+    </footer>
+<script>
+    // ── Dropdown ──
+    function toggleDropdown() {
+        event.stopPropagation();
+        var d = document.getElementById('userDropdown');
+        d.style.display = d.style.display === 'none' ? 'block' : 'none';
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.user-profile')) {
+            var d = document.getElementById('userDropdown');
+            if (d) d.style.display = 'none';
+        }
+    });
+
+    // ── State ──
+    const podAudio = document.getElementById('podAudio');
+    let currentPodcast = null;
+    let currentEpIndex = 0;
+    let allPodcasts = [];
+    let filteredPodcasts = [];
+    let activeCategory = 'all';
+
+    // ── Load trending from iTunes RSS (free, no key needed) ──
+    async function loadTrending(category) {
+        const grid = document.getElementById('trendingPodGrid');
+        grid.innerHTML = '<div class="pod-loading"><div class="pod-spinner"></div>Loading…</div>';
+
+        try {
+            // iTunes top podcasts RSS — returns JSON
+            const genreMap = {
+                all: '26', technology: '1318', music: '1310',
+                'true crime': '1488', comedy: '1303', science: '1533',
+                business: '1321', health: '1307', history: '1462', arts: '1301'
+            };
+            const genreId = genreMap[category] || '26';
+            const url = `https://itunes.apple.com/us/rss/toppodcasts/limit=20/genre=${genreId}/json`;
+            const res = await fetch(url);
+            const data = await res.json();
+            const entries = data.feed?.entry || [];
+
+            if (!entries.length) {
+                grid.innerHTML = '<div class="pod-loading">No podcasts found.</div>';
+                return;
+            }
+
+            allPodcasts = entries.map(e => ({
+                id: e.id?.attributes?.['im:id'] || Math.random(),
+                title: e['im:name']?.label || 'Unknown',
+                author: e['im:artist']?.label || '',
+                image: e['im:image']?.[2]?.label || e['im:image']?.[0]?.label || '',
+                description: e.summary?.label || '',
+                category: e.category?.attributes?.label || category,
+                itunesId: e.id?.attributes?.['im:id'],
+                episodes: [] // loaded on open
+            }));
+
+            filteredPodcasts = allPodcasts;
+            renderPodGrid(grid, filteredPodcasts);
+
+        } catch (err) {
+            grid.innerHTML = '<div class="pod-loading">Failed to load. Please try again.</div>';
+        }
+    }
+
+    function renderPodGrid(grid, pods) {
+        if (!pods.length) {
+            grid.innerHTML = '<div class="pod-loading">No podcasts found.</div>';
+            return;
+        }
+        grid.innerHTML = '';
+        pods.forEach(pod => {
+            const card = document.createElement('div');
+            card.className = 'pod-card';
+            card.dataset.category = pod.category.toLowerCase();
+            card.dataset.title = pod.title.toLowerCase();
+            card.innerHTML = `
+                <div class="pod-card-img">
+                    ${pod.image
+                        ? `<img src="${pod.image}" alt="${pod.title}" onerror="this.style.display='none'">`
+                        : `<div class="pod-card-img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(180,180,200,0.3)" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div>`
+                    }
+                    <div class="pod-card-overlay">
+                        <div class="pod-play-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="pod-card-info">
+                    <div class="pod-card-title">${pod.title}</div>
+                    <div class="pod-card-author">${pod.author}</div>
+                    <div class="pod-card-tag">${pod.category}</div>
+                </div>
+            `;
+            card.onclick = () => openPodcast(pod);
+            grid.appendChild(card);
+        });
+    }
+
+    // ── Open podcast in player ──
+    async function openPodcast(pod) {
+        currentPodcast = pod;
+        currentEpIndex = 0;
+
+        document.getElementById('podPlayerEmpty').style.display = 'none';
+        document.getElementById('podPlayerContent').style.display = 'flex';
+        document.getElementById('podPlayerImg').src = pod.image || '';
+        document.getElementById('podPlayerTitle').textContent = pod.title;
+        document.getElementById('podPlayerAuthor').textContent = pod.author;
+        document.getElementById('podPlayerDesc').textContent = pod.description || '';
+        // iTunes summaries can contain promotional text; the page uses ellipsis/clamp via CSS to keep the background readable.
+
+        document.getElementById('podPlayerTag').textContent = pod.category || 'Podcast';
+
+        // Highlight active card
+        document.querySelectorAll('.pod-card').forEach(c => c.classList.remove('active'));
+        event?.currentTarget?.classList?.add('active');
+
+        const epList = document.getElementById('podEpList');
+        epList.innerHTML = '<div class="pod-loading"><div class="pod-spinner"></div>Loading episodes…</div>';
+        document.getElementById('podNowPlaying').style.display = 'none';
+
+        // If episodes already provided (artist upload) use them directly
+        if (pod.episodes && pod.episodes.length > 0 && pod.episodes[0].audio) {
+            renderEpisodes(pod.episodes);
+            playEpisode(0);
+            return;
+        }
+
+        // Fetch episodes from iTunes lookup
+        if (pod.itunesId) {
+            try {
+                const res = await fetch(`https://itunes.apple.com/lookup?id=${pod.itunesId}&media=podcast&entity=podcastEpisode&limit=10`);
+                const data = await res.json();
+                const eps = (data.results || []).filter(r => r.wrapperType === 'podcastEpisode');
+                pod.episodes = eps.map(ep => ({
+                    title: ep.trackName || 'Episode',
+                    audio: ep.episodeUrl || '',
+                    duration: ep.trackTimeMillis ? formatPodTime(ep.trackTimeMillis / 1000) : '',
+                    date: ep.releaseDate ? new Date(ep.releaseDate).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : ''
+                })).filter(ep => ep.audio);
+
+                if (!pod.episodes.length) {
+                    epList.innerHTML = '<div class="pod-loading">No playable episodes found.</div>';
+                    return;
+                }
+                renderEpisodes(pod.episodes);
+                playEpisode(0);
+            } catch (err) {
+                epList.innerHTML = '<div class="pod-loading">Failed to load episodes.</div>';
+            }
+        } else {
+            epList.innerHTML = '<div class="pod-loading">No episodes available.</div>';
+        }
+    }
+
+    function renderEpisodes(episodes) {
+        const epList = document.getElementById('podEpList');
+        epList.innerHTML = '';
+        episodes.forEach((ep, i) => {
+            const item = document.createElement('div');
+            item.className = 'pod-ep-item' + (i === 0 ? ' active' : '');
+            item.id = `ep_${i}`;
+            item.innerHTML = `
+                <div class="pod-ep-num">${i + 1}</div>
+                <div class="pod-ep-info">
+                    <div class="pod-ep-title">${ep.title}</div>
+                    <div class="pod-ep-meta">${ep.date || ''}${ep.date && ep.duration ? ' · ' : ''}${ep.duration || ''}</div>
+                </div>
+                <button class="pod-ep-play" onclick="playEpisode(${i}); event.stopPropagation();">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </button>
+            `;
+            item.onclick = () => playEpisode(i);
+            epList.appendChild(item);
+        });
+    }
+
+    function playEpisode(idx) {
+        if (!currentPodcast?.episodes?.length) return;
+        currentEpIndex = idx;
+        const ep = currentPodcast.episodes[idx];
+
+        podAudio.src = ep.audio;
+        podAudio.play();
+
+        document.getElementById('podNowPlaying').style.display = 'block';
+        document.getElementById('podNpTitle').textContent = ep.title;
+        document.getElementById('podNpDate').textContent = ep.date || '';
+
+        // Highlight active episode
+        document.querySelectorAll('.pod-ep-item').forEach((el, i) => {
+            el.classList.toggle('active', i === idx);
+        });
+
+        showPodPause();
+    }
+
+    // ── Audio controls ──
+    function podTogglePlay() {
+        if (!podAudio.src) return;
+        if (podAudio.paused) { podAudio.play(); showPodPause(); }
+        else { podAudio.pause(); showPodPlay(); }
+    }
+
+    function podPrevEp() {
+        if (!currentPodcast) return;
+        const newIdx = Math.max(0, currentEpIndex - 1);
+        playEpisode(newIdx);
+    }
+
+    function podNextEp() {
+        if (!currentPodcast) return;
+        const newIdx = Math.min(currentPodcast.episodes.length - 1, currentEpIndex + 1);
+        playEpisode(newIdx);
+    }
+
+    function podSkip(secs) {
+        if (!podAudio.src) return;
+        podAudio.currentTime = Math.max(0, Math.min(podAudio.duration || 0, podAudio.currentTime + secs));
+    }
+
+    function podSetSpeed(speed) {
+        podAudio.playbackRate = speed;
+        document.querySelectorAll('.pod-speed-btn').forEach(b => {
+            b.classList.toggle('active', parseFloat(b.textContent) === speed || b.textContent === speed + 'x');
+        });
+    }
+
+    function podSeek(e) {
+        const bar = document.getElementById('podProgressBar');
+        const rect = bar.getBoundingClientRect();
+        const pct = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
+        if (podAudio.duration) podAudio.currentTime = pct * podAudio.duration;
+    }
+
+    function podSetVolume(e) {
+        const bar = document.getElementById('podVolBar');
+        const rect = bar.getBoundingClientRect();
+        const pct = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
+        podAudio.volume = pct;
+        document.getElementById('podVolFill').style.width = (pct * 100) + '%';
+        document.getElementById('podVolDot').style.left = (pct * 100) + '%';
+    }
+
+    podAudio.addEventListener('timeupdate', () => {
+        if (!podAudio.duration) return;
+        const pct = (podAudio.currentTime / podAudio.duration) * 100;
+        document.getElementById('podProgressFill').style.width = pct + '%';
+        document.getElementById('podProgressDot').style.left = pct + '%';
+        document.getElementById('podCurTime').textContent = formatPodTime(podAudio.currentTime);
+        document.getElementById('podTotalTime').textContent = formatPodTime(podAudio.duration);
+    });
+
+    podAudio.addEventListener('ended', podNextEp);
+    podAudio.addEventListener('play', showPodPause);
+    podAudio.addEventListener('pause', showPodPlay);
+
+    function showPodPlay() {
+        document.getElementById('podPlayIcon').style.display = 'block';
+        document.getElementById('podPauseIcon').style.display = 'none';
+    }
+    function showPodPause() {
+        document.getElementById('podPlayIcon').style.display = 'none';
+        document.getElementById('podPauseIcon').style.display = 'block';
+    }
+
+    function formatPodTime(secs) {
+        if (isNaN(secs)) return '0:00';
+        const h = Math.floor(secs / 3600);
+        const m = Math.floor((secs % 3600) / 60);
+        const s = Math.floor(secs % 60);
+        if (h > 0) return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    // ── Category filter ──
+    function selectCategory(cat, btn) {
+        activeCategory = cat;
+        document.querySelectorAll('.pod-chip').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        loadTrending(cat);
+    }
+
+    // ── Search filter ──
+    function filterPodcasts() {
+        const q = document.getElementById('podSearchInput').value.toLowerCase();
+        const filtered = q
+            ? allPodcasts.filter(p => p.title.toLowerCase().includes(q) || p.author.toLowerCase().includes(q))
+            : allPodcasts;
+        renderPodGrid(document.getElementById('trendingPodGrid'), filtered);
+    }
+
+    // ── Init ──
+    loadTrending('all');
+</script>
+</body>
+</html>
