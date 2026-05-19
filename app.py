@@ -78,8 +78,35 @@ class Podcast(db.Model):
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
     uploader    = db.relationship('User', backref='podcasts')
 
+class ActivityLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    activity_type = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class LikedSong(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), nullable=False)
+    track_name = db.Column(db.String(300), nullable=False)
+    artist_name = db.Column(db.String(300), nullable=False)
+    audio_url = db.Column(db.String(500), nullable=False)
+    image_url = db.Column(db.String(500), nullable=True)
+    source = db.Column(db.String(50), nullable=False, default='jamendo')  # jamendo or youtube
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'activity_type': self.activity_type,
+            'description': self.description,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
 with app.app_context():
     db.create_all()
+
 
 def admin_required():
     return session.get('username') == 'admin'
@@ -108,6 +135,49 @@ def artists():
     if 'username' not in session:
         return redirect(url_for('home'))
     return render_template('artists.html')
+
+
+@app.route('/artists/<int:artist_id>')
+def artist_details(artist_id):
+    # Jamendo-based artist page: show all Jamendo tracks/albums for this artist.
+    if 'username' not in session:
+        return redirect(url_for('home'))
+
+    try:
+        artist_id_str = str(artist_id)
+        # Best-effort fetch artist name/image. If it fails, we still render.
+        import requests
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        res = requests.get(
+            'https://api.jamendo.com/v3.0/artists/',
+            params={
+                'client_id': '44ba3383',
+                'format': 'json',
+                'limit': 1,
+                'id': artist_id_str,
+            },
+            headers=headers,
+            timeout=10,
+        )
+        data = res.json()
+        results = data.get('results') or data.get('artists') or []
+        artist = results[0] if results else {}
+    except Exception:
+        artist = {}
+
+    artist_name = artist.get('name', f'Artist {artist_id}')
+    artist_image = ''
+    img = artist.get('image')
+    if isinstance(img, str) and img:
+        artist_image = img
+
+    return render_template(
+        'artist_details.html',
+        artist_id=artist_id,
+        artist_name=artist_name,
+        artist_image=artist_image,
+    )
+
 
 @app.route('/releases')
 def releases():
@@ -912,6 +982,37 @@ def admin_delete_podcast(pod_id):
     db.session.delete(pod)
     db.session.commit()
     return redirect(url_for('admin'))
+@app.route('/like-song', methods=['POST'])
+def like_song():
+    if 'username' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
+    data = request.get_json()
+    username = session['username']
+    track_name = data.get('track_name', '')
+    audio_url = data.get('audio_url', '')
+    existing = LikedSong.query.filter_by(username=username, audio_url=audio_url).first()
+    if existing:
+        db.session.delete(existing)
+        db.session.commit()
+        return jsonify({'liked': False})
+    new_like = LikedSong(
+        username=username,
+        track_name=track_name,
+        artist_name=data.get('artist_name', ''),
+        audio_url=audio_url,
+        image_url=data.get('image_url', ''),
+        source=data.get('source', 'jamendo')
+    )
+    db.session.add(new_like)
+    db.session.commit()
+    return jsonify({'liked': True})
+
+@app.route('/liked-songs')
+def liked_songs():
+    if 'username' not in session:
+        return redirect(url_for('home'))
+    songs = LikedSong.query.filter_by(username=session['username']).order_by(LikedSong.created_at.desc()).all()
+    return jsonify({'songs': [{'track_name': s.track_name, 'artist_name': s.artist_name, 'audio_url': s.audio_url, 'image_url': s.image_url, 'source': s.source} for s in songs]})
 if __name__ == '__main__':
     app.run(debug=True)
 

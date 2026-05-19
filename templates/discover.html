@@ -287,14 +287,19 @@
                     const item = document.createElement('div');
                     item.className = 'track-item';
                     item.style.cursor = 'pointer';
-                    item.innerHTML = `
-                        <img src="${track.album_image}" alt="${track.name}" class="track-thumb">
-                        <div class="track-info">
-                            <span class="track-name">${track.name}</span>
-                            <span class="track-artist">${track.artist_name}</span>
-                        </div>
-                        <span style="color:white;font-size:18px;">&#9654;</span>
-                    `;
+                   const isLiked = likedSongs.has(track.audio);
+item.innerHTML = `
+    <img src="${track.album_image}" alt="${track.name}" class="track-thumb">
+    <div class="track-info">
+        <span class="track-name">${track.name}</span>
+        <span class="track-artist">${track.artist_name}</span>
+    </div>
+    <button class="like-btn" title="${isLiked ? 'Unlike' : 'Like'}"
+        style="background:none;border:none;cursor:pointer;font-size:16px;color:${isLiked ? '#e05c7c' : 'rgba(255,255,255,0.4)'};"
+        onclick="toggleLike(this, '${track.audio}', '${track.name.replace(/'/g, "\\'")}', '${track.artist_name.replace(/'/g, "\\'")}', '${track.album_image}', 'jamendo')">
+        ❤
+    </button>
+`;
                     item.onclick = () => {
                         currentIndex = idx;
                         playTrack(track.audio, track.name, track.artist_name, track.album_image);
@@ -411,14 +416,22 @@
                 const card = document.createElement('div');
                 card.className = 'track-item';
                 card.style.cursor = 'pointer';
-                card.innerHTML = `
-                    <div class="track-thumb" style="background:url('${item.thumbnail}') center/cover;border-radius:4px;width:44px;height:44px;flex-shrink:0;"></div>
-                    <div class="track-info">
-                        <span class="track-name">${item.title}</span>
-                        <span class="track-artist">${item.channel}</span>
-                    </div>
-                    <span style="color:rgba(180,170,220,0.7);font-size:11px;letter-spacing:1px;">YT</span>
-                `;
+          const ytUrl = `https://www.youtube.com/watch?v=${item.videoId}`;
+const isLiked = likedSongs.has(ytUrl);
+card.innerHTML = `
+    <div class="track-thumb" style="background:linear-gradient(135deg,#1a1a2e,#e94560);display:flex;align-items:center;justify-content:center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+    </div>
+    <div class="track-info">
+        <span class="track-name">${item.title}</span>
+        <span class="track-artist">${item.channel}</span>
+    </div>
+    <button class="like-btn" title="${isLiked ? 'Unlike' : 'Like'}"
+        style="background:none;border:none;cursor:pointer;font-size:16px;color:${isLiked ? '#e05c7c' : 'rgba(255,255,255,0.4)'};"
+        onclick="toggleLike(this, '${ytUrl}', '${item.title.replace(/'/g, "\\'")}', '${item.channel.replace(/'/g, "\\'")}', '${item.thumbnail}', 'youtube')">
+        ❤
+    </button>
+`;
                 card.onclick = () => playYouTubeTrack(item.videoId, item.title, item.channel, item.thumbnail);
                 resultsDiv.appendChild(card);
             });
@@ -435,6 +448,52 @@
             });
         }
     });
+    // Liked songs set (to track which are liked)
+let likedSongs = new Set();
+
+// Load user's liked songs on page load
+async function loadLikedSongs() {
+    try {
+        const res = await fetch('/liked-songs');
+        const data = await res.json();
+        data.songs.forEach(s => likedSongs.add(s.audio_url));
+    } catch (err) {
+        console.log('Could not load liked songs');
+    }
+}
+
+// Toggle like
+async function toggleLike(btn, audioUrl, trackName, artistName, imageUrl, source) {
+    event.stopPropagation();
+    try {
+        const res = await fetch('/like-song', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                track_name: trackName,
+                artist_name: artistName,
+                audio_url: audioUrl,
+                image_url: imageUrl,
+                source: source || 'jamendo'
+            })
+        });
+        const data = await res.json();
+        if (data.liked) {
+            likedSongs.add(audioUrl);
+            btn.style.color = '#e05c7c';
+            btn.title = 'Unlike';
+        } else {
+            likedSongs.delete(audioUrl);
+            btn.style.color = 'rgba(255,255,255,0.4)';
+            btn.title = 'Like';
+        }
+    } catch (err) {
+        console.log('Like failed');
+    }
+}
+loadLikedSongs();
+loadTracks(null);
+loadAlbums();
 </script>
 
 <script src="{{ url_for('static', filename='player.js') }}"></script>
