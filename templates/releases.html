@@ -151,12 +151,8 @@
  <footer class="footer">
         <div class="footer-top">
             <div class="footer-brand">
-                <div class="footer-logo">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 18V5l12-2v13"></path>
-                        <circle cx="6" cy="18" r="3"></circle>
-                        <circle cx="18" cy="16" r="3"></circle>
-                    </svg>
+        <div class="footer-logo">
+                    <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Nocturna" class="footer-logo-img">
                     Nocturna
                 </div>
                 <p class="footer-tagline">Curated sounds for those who thrive after midnight.</p>
@@ -256,9 +252,9 @@ card.innerHTML = `
     }
 
     loadReleases('electronic', 'electronicGrid');
-    loadReleases('ambient', 'ambientGrid');
-    loadReleases('pop', 'popGrid');
-    loadReleases('rock', 'rockGrid');
+loadReleases('ambient', 'ambientGrid');
+loadReleases('pop', 'popGrid');
+loadReleases('rock', 'rockGrid');
     // YouTube Search
 async function searchYouTube() {
     const query = document.getElementById('ytSearchInput').value.trim();
@@ -367,7 +363,7 @@ loadReleases('ambient', 'ambientGrid');
 loadReleases('pop', 'popGrid');
 loadReleases('rock', 'rockGrid');
 </script>
-<div id="yt-iframe"></div>
+<div id="yt-iframe" style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;opacity:0;"></div>
 <script src="https://www.youtube.com/iframe_api"></script>
 <script src="{{ url_for('static', filename='player.js') }}"></script>
 </body>

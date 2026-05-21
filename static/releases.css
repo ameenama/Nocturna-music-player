@@ -274,7 +274,7 @@ body {
 .footer-logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     font-size: 18px;
     font-weight: 800;
     letter-spacing: 2px;
@@ -283,6 +283,24 @@ body {
     margin-bottom: 14px;
 }
 
+.footer-logo-img {
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.footer-brand {
+    flex: 2;
+    min-width: 200px;
+}
+
+.footer-top {
+    display: flex;
+    gap: 60px;
+    flex-wrap: wrap;
+    padding-bottom: 48px;
+}
 .footer-tagline {
     font-size: 13px;
     color: rgba(200, 200, 210, 0.55);
